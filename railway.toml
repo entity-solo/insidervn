@@ -1,0 +1,7 @@
+# Railway project config (build context = repo root)
+[build]
+builder = "dockerfile"
+dockerfilePath = "backend/Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"

@@ -1,0 +1,34 @@
+# Repo-root build context for the backend image.
+# Exclude everything except the backend code and the two reference data files.
+.git/
+frontend/
+node_modules/
+_archive/
+*.log
+.env
+.env.*
+__pycache__/
+*.pyc
+.vnenv/
+.vscode/
+.DS_Store
+
+# Raw legacy snapshot is large and not needed inside the image
+# (the worker scrapes live from the source).
+vietstock-insider-raw.json
+
+# Uncompressed reference data is uploaded as .gz (see Dockerfile); exclude
+# the originals from the build context to keep the upload small.
+vietstock-migrated.json
+price-cache-full.json
+
+# Reference data is downloaded at runtime from GitHub raw (REFERENCE_BASE_URL);
+# keep it out of the build context so `railway up` uploads stay tiny.
+vietstock-migrated.json.gz
+price-cache-full.json.gz
+
+# Keep tests out of the runtime image but keep scripts/ (the worker runs them).
+backend/tests/
+backend/.venv/
+backend/data/
+backend/__pycache__/

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InsiderVN — Sổ công bố giao dịch nội bộ chứng khoán Việt Nam</title>
+<meta name="description" content="Sổ công bố giao dịch nội bộ của lãnh đạo, HĐQT, cổ đông lớn trên HOSE, HNX, UPCoM. Tín hiệu mua rổ, mua khi giảm và xếp hạng Win Rate.">
+<meta property="og:title" content="InsiderVN — Sổ công bố giao dịch nội bộ">
+<meta property="og:description" content="Theo dõi giao dịch nội bộ chứng khoán Việt Nam.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0A0C10">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='8' y='8' width='84' height='84' rx='18' fill='%230A0C10' stroke='%234F8CFF' stroke-width='5'/><text x='50' y='68' text-anchor='middle' font-size='52' fill='%234F8CFF' font-family='Arial,sans-serif' font-weight='bold'>N</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="app-data-full.js"></script>
+<script src="app-prices.js"></script>
+  <script defer src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="app-supabase.js"></script>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Chuyển đến nội dung chính</a>
+<nav>
+  <button class="logo" onclick="switchTab('feed')" aria-label="InsiderVN - Trang chủ">
+    <div class="logo-seal"></div>
+    InsiderVN
+  </button>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-tab="feed" onclick="switchTab('feed')">Bảng tin</button>
+    <button class="nav-tab" data-tab="signals" onclick="switchTab('signals')">Tín hiệu</button>
+    <button class="nav-tab" data-tab="winrate" onclick="switchTab('winrate')">Xếp hạng</button>
+    <button class="nav-tab" data-tab="stock" onclick="switchTab('stock')">Tra mã</button>
+    <button class="nav-tab" data-tab="watchlist" onclick="switchTab('watchlist')">Theo dõi</button>
+  </div>
+  <div class="nav-right">
+    <button class="cmdk-trigger" onclick="openCmdk()" aria-label="Tìm nhanh (Ctrl/Cmd + K)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span class="cmdk-trigger-text">Tìm nhanh</span>
+      <kbd>⌘K</kbd>
+    </button>
+    <button class="sb-login-btn" id="sb-login-btn" onclick="sbOpenModal('in')">Đăng nhập</button>
+    <button class="hamburger" onclick="toggleMobile()" aria-label="Menu">
+       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <button class="nav-tab active" data-tab="feed" onclick="switchTab('feed');closeMobile()">Bảng tin</button>
+  <button class="nav-tab" data-tab="signals" onclick="switchTab('signals');closeMobile()">Tín hiệu</button>
+  <button class="nav-tab" data-tab="winrate" onclick="switchTab('winrate');closeMobile()">Xếp hạng</button>
+  <button class="nav-tab" data-tab="stock" onclick="switchTab('stock');closeMobile()">Tra mã</button>
+  <button class="nav-tab" data-tab="watchlist" onclick="switchTab('watchlist');closeMobile()">Theo dõi</button>
+</div>
+<div class="container" id="main-content">
+  <div id="panel-feed" class="panel active">
+    <div class="feed-header">
+      <div>
+        <div class="eyebrow">Sổ công bố nội bộ</div>
+        <div class="feed-title">Giao dịch insider</div>
+        <div class="feed-subtitle">Tổng hợp từ HOSE · HNX · UPCoM — giai đoạn 2020–2026</div>
+      </div>
+      <div class="feed-controls">
+        <div class="feed-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+           <input id="feed-search" placeholder="Tìm mã, tên người…" oninput="renderFeed()" aria-label="Tìm kiếm giao dịch">
+        </div>
+        <div class="feed-sort">
+          <button class="density-btn" id="density-btn" onclick="toggleDensity()" title="Đổi mật độ hiển thị">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <span id="density-label">Thu gọn</span>
+          </button>
+          <button class="export-csv-btn" onclick="exportFeedCSV()" title="Xuất CSV">⬇ CSV</button>
+        </div>
+        <div class="filters">
+          <button class="filter-btn active" onclick="setFilter('all', this)">Tất cả</button>
+          <button class="filter-btn" onclick="setFilter('buy', this)">Đã mua</button>
+          <button class="filter-btn" onclick="setFilter('sell', this)">Đã bán</button>
+          <button class="filter-btn" onclick="setFilter('register', this)">Đăng ký</button>
+          <button class="filter-btn" onclick="setFilter('HOSE', this)">HOSE</button>
+          <button class="filter-btn" onclick="setFilter('HNX', this)">HNX</button>
+          <button class="filter-btn" onclick="setFilter('UPCoM', this)">UPCoM</button>
+        </div>
+        <div class="filters-row">
+          <div class="filter-group">
+            <span class="filter-label">Vai trò</span>
+            <button class="filter-btn role-filter active" onclick="setRoleFilter('all', this)">Tất cả</button>
+            <button class="filter-btn role-filter" onclick="setRoleFilter('board', this)">HĐQT</button>
+            <button class="filter-btn role-filter" onclick="setRoleFilter('insider', this)">Người nội bộ</button>
+            <button class="filter-btn role-filter" onclick="setRoleFilter('related', this)">Người liên quan</button>
+          </div>
+          <div class="period-group">
+            <span class="filter-label">Thời gian</span>
+            <select id="feed-period" onchange="setPeriodFilter(this.value)">
+              <option value="all">Tất cả</option>
+              <option value="7">7 ngày</option>
+              <option value="30">30 ngày</option>
+              <option value="90">3 tháng</option>
+              <option value="180">6 tháng</option>
+              <option value="365">1 năm</option>
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="delay-notice">
+      <span>&#9201;</span>
+      <div>Dữ liệu tổng hợp từ <strong>công bố chính thức</strong> của HOSE · HNX · UPCoM. Theo dõi mã để xem nhanh hơn.</div>
+    </div>
+    <div class="feed-stats" id="feed-stats"></div>
+    <div class="table-scroll">
+      <div class="feed-head" id="feed-head"></div>
+      <div class="feed-rows" id="tx-list"></div>
+    </div>
+    <div id="feed-sentinel"></div>
+    <div id="recently-viewed"></div>
+    <div class="top-insiders" id="top-insiders"></div>
+  </div>
+  <div id="panel-stock" class="panel">
+    <div class="stock-search-wrap">
+      <div class="stock-search-label">Tra cứu giao dịch nội bộ</div>
+      <div class="search-mode-toggle">
+        <button class="mode-btn active" id="mode-ticker" onclick="switchSearchMode('ticker')">Mã CP</button>
+        <button class="mode-btn" id="mode-person" onclick="switchSearchMode('person')">Người</button>
+      </div>
+      <div id="search-ticker-mode">
+        <div class="search-box">
+           <input class="search-input" id="stock-input" placeholder="VD: VIC, TCB, FPT…" maxlength="10" onkeydown="if(event.key==='Enter') searchStock()" oninput="showTickerSuggestions()" aria-label="Nhập mã chứng khoán" autocomplete="off">
+          <button class="search-btn" onclick="searchStock()">Xem</button>
+        </div>
+        <div class="suggestions-dropdown" id="ticker-suggestions" style="display:none"></div>
+        <div id="recent-ticker-searches" class="recent-searches"></div>
+      </div>
+      <div id="search-person-mode" style="display:none">
+        <div class="search-box">
+           <input class="search-input" id="person-input" placeholder="VD: Đoàn Nguyên Đức, Bầu Đức…" onkeydown="if(event.key==='Enter') searchPerson()" oninput="showPersonSuggestions()" aria-label="Nhập tên lãnh đạo" autocomplete="off">
+          <button class="search-btn" onclick="searchPerson()">Xem</button>
+        </div>
+        <div class="suggestions-dropdown" id="person-suggestions" style="display:none"></div>
+        <div id="recent-person-searches" class="recent-searches"></div>
+      </div>
+    </div>
+    <div class="stock-result" id="stock-result"></div>
+  </div>
+  <div id="panel-signals" class="panel">
+    <div class="signals-header">
+      <div>
+        <div class="eyebrow">Tín hiệu insider</div>
+        <div class="signals-title">Phát hiện giao dịch nội bộ</div>
+        <div class="signals-subtitle">Mua rổ, mua khi giảm và giao dịch đáng chú ý từ HOSE · HNX · UPCoM</div>
+      </div>
+      <div class="signal-view-toggle">
+        <button class="signal-view-btn active" onclick="setSignalView('cluster', this)">Mua rổ</button>
+        <button class="signal-view-btn" onclick="setSignalView('dip', this)">Mua khi giảm</button>
+        <button class="signal-view-btn" onclick="setSignalView('highlight', this)">Đáng chú ý</button>
+      </div>
+    </div>
+    <div class="signals-filters">
+      <div class="filter-group">
+        <span class="filter-label">Cửa sổ</span>
+        <button class="filter-btn cluster-win-btn active" onclick="setClusterWindow(14, this)">14 ngày</button>
+        <button class="filter-btn cluster-win-btn" onclick="setClusterWindow(30, this)">30 ngày</button>
+      </div>
+      <div class="period-group">
+        <span class="filter-label">Sàn</span>
+        <select id="signal-exchange" onchange="setSignalExchange(this.value)">
+          <option value="all">Tất cả</option>
+          <option value="HOSE">HOSE</option>
+          <option value="HNX">HNX</option>
+          <option value="UPCoM">UPCoM</option>
+        </select>
+      </div>
+    </div>
+    <div id="signals-content"></div>
+  </div>
+  <div id="panel-watchlist" class="panel">
+    <div class="watchlist-header">
+      <div>
+        <div class="eyebrow">Danh mục cá nhân</div>
+        <div class="watchlist-title">Theo dõi</div>
+        <div class="watchlist-subtitle">Theo dõi lãnh đạo và mã CP bạn quan tâm</div>
+      </div>
+      <div class="watchlist-actions">
+        <button class="wl-action-btn" onclick="exportWatchlist()" aria-label="Xuất danh sách">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Xuất CSV
+        </button>
+      </div>
+    </div>
+    <div class="watchlist-stats" id="watchlist-stats">
+      <div class="wl-stat-card"><div class="wl-stat-icon people">&#128101;</div><div class="wl-stat-info"><div class="wl-stat-value" id="wl-people-count">0</div><div class="wl-stat-label">Người</div></div></div>
+      <div class="wl-stat-card"><div class="wl-stat-icon tickers">&#128200;</div><div class="wl-stat-info"><div class="wl-stat-value" id="wl-ticker-count">0</div><div class="wl-stat-label">Mã CP</div></div></div>
+      <div class="wl-stat-card"><div class="wl-stat-icon trades">&#128172;</div><div class="wl-stat-info"><div class="wl-stat-value" id="wl-trade-count">0</div><div class="wl-stat-label">Giao dịch</div></div></div>
+      <div class="wl-stat-card"><div class="wl-stat-icon signal">&#9889;</div><div class="wl-stat-info"><div class="wl-stat-value" id="wl-signal">—</div><div class="wl-stat-label">Tín hiệu</div></div></div>
+    </div>
+    <div class="watchlist-add">
+      <div class="watchlist-add-title">Thêm vào danh sách</div>
+      <div class="watchlist-add-row">
+        <div class="watchlist-add-group">
+           <input class="watchlist-input" id="wl-add-person" placeholder="Thêm người: nhập tên lãnh đạo…" onkeydown="if(event.key==='Enter')addPersonToWatchlist()" aria-label="Thêm lãnh đạo vào danh sách theo dõi">
+          <button class="watchlist-add-btn" onclick="addPersonToWatchlist()">+ Người</button>
+        </div>
+        <div class="watchlist-add-group">
+           <input class="watchlist-input uppercase" id="wl-add-ticker" placeholder="Thêm mã: VD: VIC, FPT…" maxlength="10" onkeydown="if(event.key==='Enter')addTickerToWatchlist()" aria-label="Thêm mã chứng khoán vào danh sách theo dõi">
+          <button class="watchlist-add-btn" onclick="addTickerToWatchlist()">+ Mã CP</button>
+        </div>
+      </div>
+    </div>
+    <div class="watchlist-sections">
+      <div class="watchlist-section" id="wl-people-section">
+        <div class="wl-section-header">
+          <div class="wl-section-title">Lãnh đạo đang theo dõi</div>
+          <button class="wl-section-toggle" onclick="toggleSection('people')">Thu gọn</button>
+        </div>
+        <div class="wl-section-content" id="wl-people-list"></div>
+      </div>
+      <div class="watchlist-section" id="wl-tickers-section">
+        <div class="wl-section-header">
+          <div class="wl-section-title">Mã CP đang theo dõi</div>
+          <button class="wl-section-toggle" onclick="toggleSection('tickers')">Thu gọn</button>
+        </div>
+        <div class="wl-section-content" id="wl-tickers-list"></div>
+      </div>
+      <div class="watchlist-section">
+        <div class="wl-section-header">
+          <div class="wl-section-title">Giao dịch gần đây</div>
+        </div>
+        <div class="wl-section-content" id="wl-recent-trades"></div>
+      </div>
+    </div>
+    <div class="watchlist-empty" id="wl-empty">
+      <div class="wl-empty-icon">&#9733;</div>
+      <div class="wl-empty-title">Chưa có gì trong danh sách theo dõi</div>
+      <div class="wl-empty-desc">Thêm lãnh đạo hoặc mã CP để theo dõi giao dịch nội bộ ngay trên trang chủ.</div>
+    </div>
+  </div>
+  <div id="panel-winrate" class="panel">
+    <div class="winrate-header">
+      <div>
+        <div class="eyebrow">Thống kê lịch sử</div>
+        <div class="winrate-title">Xếp hạng Win Rate</div>
+        <div class="winrate-subtitle">Top lãnh đạo có tỷ lệ giao dịch thành công cao nhất — dựa trên giá hiện tại</div>
+      </div>
+    </div>
+    <div class="winrate-filters">
+      <button class="filter-btn active" onclick="setWrFilter('all',this)">Tất cả</button>
+      <button class="filter-btn" onclick="setWrFilter('winner',this)">Top thắng</button>
+      <button class="filter-btn" onclick="setWrFilter('loser',this)">Top thua</button>
+      <button class="filter-btn" onclick="setWrFilter('volume',this)">Khối lượng lớn</button>
+    </div>
+    <div class="winrate-legend">
+      <span><span class="wr-dot green"></span> Win ≥50%</span>
+      <span><span class="wr-dot red"></span> Win &lt;50%</span>
+      <span>·</span>
+      <span>PnL = % chênh lệch giá hiện tại vs giá giao dịch</span>
+    </div>
+    <div class="tx-list" id="wr-list"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-content"></div>
+</div>
+<footer>
+  <div class="footer-links">
+    <a href="#">Về InsiderVN</a>
+    <a href="#">Điều khoản sử dụng</a>
+    <a href="#">Chính sách bảo mật</a>
+    <a href="#">Liên hệ</a>
+  </div>
+  <div class="keyboard-shortcuts">
+    <span>Phím tắt:</span>
+    <kbd>⌘K</kbd> Tìm nhanh
+    <kbd>1</kbd>-<kbd>5</kbd> Chuyển mục
+    <kbd>/</kbd> Tìm kiếm
+    <kbd>Esc</kbd> Đóng
+  </div>
+  <div class="footer-disclaimer">
+    Dữ liệu mang tính tham khảo, không phải khuyến nghị đầu tư. Always DYOR. Nguồn: Vietstock.vn - Tổng hợp công bố giao dịch nội bộ từ HOSE, HNX, UPCoM (2020 - 2026).
+    <br>&copy; 2026 InsiderVN
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"><span>&#10003;</span> <span id="toast-msg">Đã lưu!</span></div>
+<div class="cmdk-overlay" id="cmdk" aria-hidden="true">
+  <div class="cmdk" role="dialog" aria-modal="true" aria-label="Tìm nhanh">
+    <div class="cmdk-input-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="cmdk-input" id="cmdk-input" placeholder="Tìm mã, người nội bộ, tín hiệu…" autocomplete="off" oninput="renderCmdk()" onkeydown="cmdkKeydown(event)">
+    </div>
+    <div class="cmdk-results" id="cmdk-results"></div>
+    <div class="cmdk-foot"><kbd>↑</kbd><kbd>↓</kbd> di chuyển <kbd>↵</kbd> chọn <kbd>Esc</kbd> đóng</div>
+  </div>
+</div>
+<div class="sb-modal" id="sb-modal" style="display:none;position:fixed;inset:0;background:rgba(4,5,8,.65);z-index:500;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--accent-line);border-radius:16px;padding:24px;width:340px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+    <div id="sb-title" style="font-size:18px;font-weight:800;margin-bottom:16px;color:var(--text)">Đăng nhập</div>
+    <input id="sb-email" placeholder="email@domain.com" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:14px">
+    <input id="sb-pass" type="password" placeholder="Mật khẩu (≥6 ký tự)" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:14px">
+    <div id="sb-msg" style="color:var(--sell);font-size:12px;min-height:16px;margin-bottom:10px"></div>
+    <button onclick="sbSubmit()" style="width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer">Tiếp tục</button>
+    <div style="margin-top:14px;font-size:12px;color:var(--muted);text-align:center">
+      <a href="#" onclick="sbOpenModal('up');return false" style="color:var(--accent);text-decoration:none">Tạo tài khoản</a> · <a href="#" onclick="sbCloseModal();return false" style="color:var(--muted);text-decoration:none">Đóng</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

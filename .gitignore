@@ -1,0 +1,27 @@
+# env
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# python
+__pycache__/
+*.pyc
+.venv/
+
+# node
+node_modules/
+.next/
+npm-debug.log*
+
+# os
+.DS_Store
+*.log
+_archive/
+
+# large reference data — committed as .gz instead (see Dockerfile/entrypoint)
+vietstock-migrated.json
+price-cache-full.json
+
+# local runtime data (sqlite db, raw scrape cache)
+backend/data/

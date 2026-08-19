@@ -1,0 +1,1187 @@
+[
+  {
+    "person": "BWE (Biwase)",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 27.96,
+    "total_pnl_vnd": 30550000000,
+    "tickers": [
+      "NNT"
+    ],
+    "details": [
+      {
+        "ticker": "NNT",
+        "type": "buy",
+        "price": 46500,
+        "current": 59500,
+        "pnl_pct": 27.96,
+        "shares": 2350000
+      }
+    ]
+  },
+  {
+    "person": "Bà Đinh Thị Thanh Hà",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 22.22,
+    "total_pnl_vnd": 6660000000,
+    "tickers": [
+      "XMC"
+    ],
+    "details": [
+      {
+        "ticker": "XMC",
+        "type": "buy",
+        "price": 8100,
+        "current": 9900,
+        "pnl_pct": 22.22,
+        "shares": 3700000
+      }
+    ]
+  },
+  {
+    "person": "Ông Vũ Thành Trung",
+    "win_rate": 100.0,
+    "wins": 2,
+    "losses": 0,
+    "total_trades": 2,
+    "avg_pnl_pct": 19.08,
+    "total_pnl_vnd": 8560000000,
+    "tickers": [
+      "DVM"
+    ],
+    "details": [
+      {
+        "ticker": "DVM",
+        "type": "sell",
+        "price": 5800,
+        "current": 5100,
+        "pnl_pct": 12.07,
+        "shares": 4000000
+      },
+      {
+        "ticker": "DVM",
+        "type": "sell",
+        "price": 6900,
+        "current": 5100,
+        "pnl_pct": 26.09,
+        "shares": 3200000
+      }
+    ]
+  },
+  {
+    "person": "Ông Nguyễn Hữu Thịnh",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 7.75,
+    "total_pnl_vnd": 942400000,
+    "tickers": [
+      "SRF"
+    ],
+    "details": [
+      {
+        "ticker": "SRF",
+        "type": "sell",
+        "price": 8000,
+        "current": 7380,
+        "pnl_pct": 7.75,
+        "shares": 1520000
+      }
+    ]
+  },
+  {
+    "person": "Ông Nguyễn Hữu Kinh Luân",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 10.22,
+    "total_pnl_vnd": 3450000000,
+    "tickers": [
+      "SMC"
+    ],
+    "details": [
+      {
+        "ticker": "SMC",
+        "type": "sell",
+        "price": 11250,
+        "current": 10100,
+        "pnl_pct": 10.22,
+        "shares": 3000000
+      }
+    ]
+  },
+  {
+    "person": "Ông Nguyễn Hùng Cường",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 19.19,
+    "total_pnl_vnd": 24440000000,
+    "tickers": [
+      "DIG"
+    ],
+    "details": [
+      {
+        "ticker": "DIG",
+        "type": "sell",
+        "price": 13550,
+        "current": 10950,
+        "pnl_pct": 19.19,
+        "shares": 9400000
+      }
+    ]
+  },
+  {
+    "person": "Bà Lê Thị Hà Thành",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 19.19,
+    "total_pnl_vnd": 3380000000,
+    "tickers": [
+      "DIG"
+    ],
+    "details": [
+      {
+        "ticker": "DIG",
+        "type": "sell",
+        "price": 13550,
+        "current": 10950,
+        "pnl_pct": 19.19,
+        "shares": 1300000
+      }
+    ]
+  },
+  {
+    "person": "Vietnam Investment Property Limited (VinaCapital)",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 30.77,
+    "total_pnl_vnd": 60000000000,
+    "tickers": [
+      "KDH"
+    ],
+    "details": [
+      {
+        "ticker": "KDH",
+        "type": "sell",
+        "price": 26000,
+        "current": 18000,
+        "pnl_pct": 30.77,
+        "shares": 7500000
+      }
+    ]
+  },
+  {
+    "person": "Ông Lê Hoàng Hà",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 6.22,
+    "total_pnl_vnd": 584200000,
+    "tickers": [
+      "SHA"
+    ],
+    "details": [
+      {
+        "ticker": "SHA",
+        "type": "buy",
+        "price": 3700,
+        "current": 3930,
+        "pnl_pct": 6.22,
+        "shares": 2540000
+      }
+    ]
+  },
+  {
+    "person": "Ông Nguyễn Văn Nghĩa",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 28.88,
+    "total_pnl_vnd": 13400000000,
+    "tickers": [
+      "TCM"
+    ],
+    "details": [
+      {
+        "ticker": "TCM",
+        "type": "sell",
+        "price": 23200,
+        "current": 16500,
+        "pnl_pct": 28.88,
+        "shares": 2000000
+      }
+    ]
+  },
+  {
+    "person": "CTCP Xuất nhập khẩu và Xây dựng Việt Nam (Vinaconex)",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 44.42,
+    "total_pnl_vnd": 837790000000,
+    "tickers": [
+      "VIW"
+    ],
+    "details": [
+      {
+        "ticker": "VIW",
+        "type": "sell",
+        "price": 44800,
+        "current": 24900,
+        "pnl_pct": 44.42,
+        "shares": 42100000
+      }
+    ]
+  },
+  {
+    "person": "Công ty TNHH DENIM Tường Long",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 3.44,
+    "total_pnl_vnd": 907500000,
+    "tickers": [
+      "TVT"
+    ],
+    "details": [
+      {
+        "ticker": "TVT",
+        "type": "sell",
+        "price": 16000,
+        "current": 15450,
+        "pnl_pct": 3.44,
+        "shares": 1650000
+      }
+    ]
+  },
+  {
+    "person": "Ông Mai Đình Nhật",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 2.04,
+    "total_pnl_vnd": 425725000,
+    "tickers": [
+      "SP2"
+    ],
+    "details": [
+      {
+        "ticker": "SP2",
+        "type": "sell",
+        "price": 24500,
+        "current": 24000,
+        "pnl_pct": 2.04,
+        "shares": 851450
+      }
+    ]
+  },
+  {
+    "person": "Ông Phan Chiến Thắng",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 10.3,
+    "total_pnl_vnd": 6120000000,
+    "tickers": [
+      "ELC"
+    ],
+    "details": [
+      {
+        "ticker": "ELC",
+        "type": "sell",
+        "price": 16500,
+        "current": 14800,
+        "pnl_pct": 10.3,
+        "shares": 3600000
+      }
+    ]
+  },
+  {
+    "person": "Công ty TNHH Năng lượng An Xuân",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 7.69,
+    "total_pnl_vnd": 10400000000,
+    "tickers": [
+      "SP2"
+    ],
+    "details": [
+      {
+        "ticker": "SP2",
+        "type": "sell",
+        "price": 26000,
+        "current": 24000,
+        "pnl_pct": 7.69,
+        "shares": 5200000
+      }
+    ]
+  },
+  {
+    "person": "Bà Đào Bích Thủy",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 1.22,
+    "total_pnl_vnd": 1000000000,
+    "tickers": [
+      "HNM"
+    ],
+    "details": [
+      {
+        "ticker": "HNM",
+        "type": "sell",
+        "price": 8200,
+        "current": 8100,
+        "pnl_pct": 1.22,
+        "shares": 10000000
+      }
+    ]
+  },
+  {
+    "person": "VietinBank (CTG)",
+    "win_rate": 100.0,
+    "wins": 1,
+    "losses": 0,
+    "total_trades": 1,
+    "avg_pnl_pct": 10.22,
+    "total_pnl_vnd": 44390000000,
+    "tickers": [
+      "SGP"
+    ],
+    "details": [
+      {
+        "ticker": "SGP",
+        "type": "sell",
+        "price": 22500,
+        "current": 20200,
+        "pnl_pct": 10.22,
+        "shares": 19300000
+      }
+    ]
+  },
+  {
+    "person": "Ông Đoàn Nguyên Đức",
+    "win_rate": 33.3,
+    "wins": 1,
+    "losses": 2,
+    "total_trades": 3,
+    "avg_pnl_pct": 13.55,
+    "total_pnl_vnd": 30755000000,
+    "tickers": [
+      "HAG",
+      "SBT"
+    ],
+    "details": [
+      {
+        "ticker": "HAG",
+        "type": "buy",
+        "price": 15133,
+        "current": 14100,
+        "pnl_pct": -6.83,
+        "shares": 5000000
+      },
+      {
+        "ticker": "SBT",
+        "type": "buy",
+        "price": 15133,
+        "current": 23350,
+        "pnl_pct": 54.3,
+        "shares": 5000000
+      },
+      {
+        "ticker": "HAG",
+        "type": "buy",
+        "price": 15133,
+        "current": 14100,
+        "pnl_pct": -6.83,
+        "shares": 5000000
+      }
+    ]
+  },
+  {
+    "person": "Công ty TNHH SSJ Consulting (Việt Nam)",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 2,
+    "total_trades": 2,
+    "avg_pnl_pct": -31.33,
+    "total_pnl_vnd": -558360000000,
+    "tickers": [
+      "GMD"
+    ],
+    "details": [
+      {
+        "ticker": "GMD",
+        "type": "sell",
+        "price": 60000,
+        "current": 78800,
+        "pnl_pct": -31.33,
+        "shares": 19700000
+      },
+      {
+        "ticker": "GMD",
+        "type": "sell",
+        "price": 60000,
+        "current": 78800,
+        "pnl_pct": -31.33,
+        "shares": 10000000
+      }
+    ]
+  },
+  {
+    "person": "CTCP Hoàng Anh Gia Lai",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -116.92,
+    "total_pnl_vnd": -694640000000,
+    "tickers": [
+      "HAG"
+    ],
+    "details": [
+      {
+        "ticker": "HAG",
+        "type": "sell",
+        "price": 6500,
+        "current": 14100,
+        "pnl_pct": -116.92,
+        "shares": 91400000
+      }
+    ]
+  },
+  {
+    "person": "Công ty TNHH Thương mại và Xây dựng Sơn Long Thuận",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -27.96,
+    "total_pnl_vnd": -52000000000,
+    "tickers": [
+      "NNT"
+    ],
+    "details": [
+      {
+        "ticker": "NNT",
+        "type": "sell",
+        "price": 46500,
+        "current": 59500,
+        "pnl_pct": -27.96,
+        "shares": 4000000
+      }
+    ]
+  },
+  {
+    "person": "Ông Nguyễn Đức Cử",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -1.0,
+    "total_pnl_vnd": -690000000,
+    "tickers": [
+      "XMC"
+    ],
+    "details": [
+      {
+        "ticker": "XMC",
+        "type": "buy",
+        "price": 10000,
+        "current": 9900,
+        "pnl_pct": -1.0,
+        "shares": 6900000
+      }
+    ]
+  },
+  {
+    "person": "Tập đoàn Geleximco",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 2,
+    "total_trades": 2,
+    "avg_pnl_pct": -14.37,
+    "total_pnl_vnd": -156900000000,
+    "tickers": [
+      "ABW"
+    ],
+    "details": [
+      {
+        "ticker": "ABW",
+        "type": "sell",
+        "price": 11800,
+        "current": 14200,
+        "pnl_pct": -20.34,
+        "shares": 46400000
+      },
+      {
+        "ticker": "ABW",
+        "type": "sell",
+        "price": 13100,
+        "current": 14200,
+        "pnl_pct": -8.4,
+        "shares": 41400000
+      }
+    ]
+  },
+  {
+    "person": "VOF Investment Limited (VinaCapital)",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -40.79,
+    "total_pnl_vnd": -124000000000,
+    "tickers": [
+      "KDH"
+    ],
+    "details": [
+      {
+        "ticker": "KDH",
+        "type": "buy",
+        "price": 30400,
+        "current": 18000,
+        "pnl_pct": -40.79,
+        "shares": 10000000
+      }
+    ]
+  },
+  {
+    "person": "Bà Nguyễn Thị Minh Huệ",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -7.5,
+    "total_pnl_vnd": -3150000000,
+    "tickers": [
+      "DSH"
+    ],
+    "details": [
+      {
+        "ticker": "DSH",
+        "type": "sell",
+        "price": 12000,
+        "current": 12900,
+        "pnl_pct": -7.5,
+        "shares": 3500000
+      }
+    ]
+  },
+  {
+    "person": "Ông Lê Tấn Phước",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -7.75,
+    "total_pnl_vnd": -497240000,
+    "tickers": [
+      "SRF"
+    ],
+    "details": [
+      {
+        "ticker": "SRF",
+        "type": "buy",
+        "price": 8000,
+        "current": 7380,
+        "pnl_pct": -7.75,
+        "shares": 802000
+      }
+    ]
+  },
+  {
+    "person": "Ông Nguyễn Khoa Đăng",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -7.75,
+    "total_pnl_vnd": -497240000,
+    "tickers": [
+      "SRF"
+    ],
+    "details": [
+      {
+        "ticker": "SRF",
+        "type": "buy",
+        "price": 8000,
+        "current": 7380,
+        "pnl_pct": -7.75,
+        "shares": 802000
+      }
+    ]
+  },
+  {
+    "person": "Ông Trần Vũ Minh",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -16.37,
+    "total_pnl_vnd": -207500000000,
+    "tickers": [
+      "HPG"
+    ],
+    "details": [
+      {
+        "ticker": "HPG",
+        "type": "buy",
+        "price": 25350,
+        "current": 21200,
+        "pnl_pct": -16.37,
+        "shares": 50000000
+      }
+    ]
+  },
+  {
+    "person": "Ông Danny Le",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -2.05,
+    "total_pnl_vnd": -7000000000,
+    "tickers": [
+      "MSN"
+    ],
+    "details": [
+      {
+        "ticker": "MSN",
+        "type": "buy",
+        "price": 68300,
+        "current": 66900,
+        "pnl_pct": -2.05,
+        "shares": 5000000
+      }
+    ]
+  },
+  {
+    "person": "Ông Nguyễn Quang Trung",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -10.22,
+    "total_pnl_vnd": -6785000000,
+    "tickers": [
+      "SMC"
+    ],
+    "details": [
+      {
+        "ticker": "SMC",
+        "type": "buy",
+        "price": 11250,
+        "current": 10100,
+        "pnl_pct": -10.22,
+        "shares": 5900000
+      }
+    ]
+  },
+  {
+    "person": "Ông Nguyễn Văn Quân",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -61.0,
+    "total_pnl_vnd": -14640000000,
+    "tickers": [
+      "HSV"
+    ],
+    "details": [
+      {
+        "ticker": "HSV",
+        "type": "buy",
+        "price": 10000,
+        "current": 3900,
+        "pnl_pct": -61.0,
+        "shares": 2400000
+      }
+    ]
+  },
+  {
+    "person": "Bà Vũ Thị Bích Ngọc",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -6.6,
+    "total_pnl_vnd": -1300000000,
+    "tickers": [
+      "CMM"
+    ],
+    "details": [
+      {
+        "ticker": "CMM",
+        "type": "buy",
+        "price": 19700,
+        "current": 18400,
+        "pnl_pct": -6.6,
+        "shares": 1000000
+      }
+    ]
+  },
+  {
+    "person": "Bà Nguyễn Thị Thu Hương",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": 0.0,
+    "total_pnl_vnd": 0,
+    "tickers": [
+      "S99"
+    ],
+    "details": [
+      {
+        "ticker": "S99",
+        "type": "buy",
+        "price": 7900,
+        "current": 7900,
+        "pnl_pct": 0.0,
+        "shares": 4000000
+      }
+    ]
+  },
+  {
+    "person": "Ông Nguyễn Đức Mạnh",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -29.42,
+    "total_pnl_vnd": -27803100000,
+    "tickers": [
+      "TNG"
+    ],
+    "details": [
+      {
+        "ticker": "TNG",
+        "type": "buy",
+        "price": 24229,
+        "current": 17100,
+        "pnl_pct": -29.42,
+        "shares": 3900000
+      }
+    ]
+  },
+  {
+    "person": "Ông Doãn Chí Thiên",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -27.51,
+    "total_pnl_vnd": -6450000000,
+    "tickers": [
+      "ANV"
+    ],
+    "details": [
+      {
+        "ticker": "ANV",
+        "type": "buy",
+        "price": 23450,
+        "current": 17000,
+        "pnl_pct": -27.51,
+        "shares": 1000000
+      }
+    ]
+  },
+  {
+    "person": "Ông Trương Anh Tuấn",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -78.0,
+    "total_pnl_vnd": -184080000000,
+    "tickers": [
+      "HQC"
+    ],
+    "details": [
+      {
+        "ticker": "HQC",
+        "type": "buy",
+        "price": 10000,
+        "current": 2200,
+        "pnl_pct": -78.0,
+        "shares": 23600000
+      }
+    ]
+  },
+  {
+    "person": "Ông Nguyễn Công Hòa",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -4.82,
+    "total_pnl_vnd": -1080000000,
+    "tickers": [
+      "S99"
+    ],
+    "details": [
+      {
+        "ticker": "S99",
+        "type": "buy",
+        "price": 8300,
+        "current": 7900,
+        "pnl_pct": -4.82,
+        "shares": 2700000
+      }
+    ]
+  },
+  {
+    "person": "CTCP Xuân Cầu Holdings",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -44.42,
+    "total_pnl_vnd": -276610000000,
+    "tickers": [
+      "VIW"
+    ],
+    "details": [
+      {
+        "ticker": "VIW",
+        "type": "buy",
+        "price": 44800,
+        "current": 24900,
+        "pnl_pct": -44.42,
+        "shares": 13900000
+      }
+    ]
+  },
+  {
+    "person": "Ông Diều Minh Lương",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -3.44,
+    "total_pnl_vnd": -907500000,
+    "tickers": [
+      "TVT"
+    ],
+    "details": [
+      {
+        "ticker": "TVT",
+        "type": "buy",
+        "price": 16000,
+        "current": 15450,
+        "pnl_pct": -3.44,
+        "shares": 1650000
+      }
+    ]
+  },
+  {
+    "person": "Công ty TNHH Năng Lượng REE",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -2.04,
+    "total_pnl_vnd": -425725000,
+    "tickers": [
+      "SP2"
+    ],
+    "details": [
+      {
+        "ticker": "SP2",
+        "type": "buy",
+        "price": 24500,
+        "current": 24000,
+        "pnl_pct": -2.04,
+        "shares": 851450
+      }
+    ]
+  },
+  {
+    "person": "CTCP Chứng khoán Quốc Gia (NSI)",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -4.88,
+    "total_pnl_vnd": -750000000,
+    "tickers": [
+      "SAM"
+    ],
+    "details": [
+      {
+        "ticker": "SAM",
+        "type": "buy",
+        "price": 6150,
+        "current": 5850,
+        "pnl_pct": -4.88,
+        "shares": 2500000
+      }
+    ]
+  },
+  {
+    "person": "Bà Dương Thị Thái",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -19.05,
+    "total_pnl_vnd": -11400000000,
+    "tickers": [
+      "DVM"
+    ],
+    "details": [
+      {
+        "ticker": "DVM",
+        "type": "buy",
+        "price": 6300,
+        "current": 5100,
+        "pnl_pct": -19.05,
+        "shares": 9500000
+      }
+    ]
+  },
+  {
+    "person": "Bà Nguyễn Thị Thu Hà",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -41.96,
+    "total_pnl_vnd": -58750000000,
+    "tickers": [
+      "HDG"
+    ],
+    "details": [
+      {
+        "ticker": "HDG",
+        "type": "buy",
+        "price": 28000,
+        "current": 16250,
+        "pnl_pct": -41.96,
+        "shares": 5000000
+      }
+    ]
+  },
+  {
+    "person": "Bà Võ Thị Mỹ Hạnh",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -116.92,
+    "total_pnl_vnd": -694640000000,
+    "tickers": [
+      "HAG"
+    ],
+    "details": [
+      {
+        "ticker": "HAG",
+        "type": "sell",
+        "price": 6500,
+        "current": 14100,
+        "pnl_pct": -116.92,
+        "shares": 91400000
+      }
+    ]
+  },
+  {
+    "person": "Ông Phạm Tùng Lâm",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -1.22,
+    "total_pnl_vnd": -1000000000,
+    "tickers": [
+      "HNM"
+    ],
+    "details": [
+      {
+        "ticker": "HNM",
+        "type": "buy",
+        "price": 8200,
+        "current": 8100,
+        "pnl_pct": -1.22,
+        "shares": 10000000
+      }
+    ]
+  },
+  {
+    "person": "CTCP Chứng khoán Thành Công (TCI)",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -12.68,
+    "total_pnl_vnd": -5490000000,
+    "tickers": [
+      "UNI"
+    ],
+    "details": [
+      {
+        "ticker": "UNI",
+        "type": "buy",
+        "price": 7100,
+        "current": 6200,
+        "pnl_pct": -12.68,
+        "shares": 6100000
+      }
+    ]
+  },
+  {
+    "person": "Ông Lê Quốc Đoàn",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -6.67,
+    "total_pnl_vnd": -1150000000,
+    "tickers": [
+      "DBC"
+    ],
+    "details": [
+      {
+        "ticker": "DBC",
+        "type": "buy",
+        "price": 17250,
+        "current": 16100,
+        "pnl_pct": -6.67,
+        "shares": 1000000
+      }
+    ]
+  },
+  {
+    "person": "Ông Phan Quốc Công",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -11.71,
+    "total_pnl_vnd": -4800000000,
+    "tickers": [
+      "PNJ"
+    ],
+    "details": [
+      {
+        "ticker": "PNJ",
+        "type": "buy",
+        "price": 41000,
+        "current": 36200,
+        "pnl_pct": -11.71,
+        "shares": 1000000
+      }
+    ]
+  },
+  {
+    "person": "Bà Trần Thị Lâm",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -9.79,
+    "total_pnl_vnd": -30800000000,
+    "tickers": [
+      "VBB"
+    ],
+    "details": [
+      {
+        "ticker": "VBB",
+        "type": "buy",
+        "price": 14300,
+        "current": 12900,
+        "pnl_pct": -9.79,
+        "shares": 22000000
+      }
+    ]
+  },
+  {
+    "person": "CTCP Transimex (TMS)",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -1.54,
+    "total_pnl_vnd": -200000000,
+    "tickers": [
+      "VNF"
+    ],
+    "details": [
+      {
+        "ticker": "VNF",
+        "type": "buy",
+        "price": 13000,
+        "current": 12800,
+        "pnl_pct": -1.54,
+        "shares": 1000000
+      }
+    ]
+  },
+  {
+    "person": "Platinum Victory Pte. Ltd.",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": -1.51,
+    "total_pnl_vnd": -14350000000,
+    "tickers": [
+      "REE"
+    ],
+    "details": [
+      {
+        "ticker": "REE",
+        "type": "buy",
+        "price": 46250,
+        "current": 45550,
+        "pnl_pct": -1.51,
+        "shares": 20500000
+      }
+    ]
+  },
+  {
+    "person": "CTCP Created Future",
+    "win_rate": 0.0,
+    "wins": 0,
+    "losses": 1,
+    "total_trades": 1,
+    "avg_pnl_pct": 0.0,
+    "total_pnl_vnd": 0,
+    "tickers": [
+      "DGW"
+    ],
+    "details": [
+      {
+        "ticker": "DGW",
+        "type": "buy",
+        "price": 41300,
+        "current": 41300,
+        "pnl_pct": 0.0,
+        "shares": 2000000
+      }
+    ]
+  }
+]
