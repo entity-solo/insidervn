@@ -1,59 +1,10 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
 import type { Transaction } from "@/lib/types";
-import { api } from "@/lib/api";
 import { fmtDate, fmtNum, fmtPrice, fmtPct, fmtMoney } from "@/lib/format";
-
-function Sparkline({ ticker }: { ticker: string }) {
-  const price = useQuery({
-    queryKey: ["price", ticker],
-    queryFn: () => api.price(ticker),
-    enabled: !!ticker,
-    staleTime: 300_000,
-  });
-  const points = useMemo(() => {
-    if (!price.data) return [];
-    return price.data.dates
-      .map((d, i) => ({ d, v: price.data!.values[i] }))
-      .filter((p) => p.v != null) as { d: string; v: number }[];
-  }, [price.data]);
-
-  if (!ticker || price.isLoading || points.length < 2) return null;
-  const W = 320;
-  const H = 56;
-  const vs = points.map((p) => p.v);
-  const min = Math.min(...vs);
-  const max = Math.max(...vs);
-  const span = max - min || 1;
-  const step = W / (points.length - 1);
-  const coords = points.map((p, i) => `${(i * step).toFixed(1)},${(H - ((p.v - min) / span) * (H - 6) - 3).toFixed(1)}`);
-  const up = vs[vs.length - 1] >= vs[0];
-  const stroke = up ? "var(--buy)" : "var(--sell)";
-  return (
-    <div style={{ marginTop: 12 }}>
-      <div className="modal-k" style={{ marginBottom: 4 }}>Giá 1 năm gần nhất</div>
-      <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden>
-        <polyline
-          points={coords.join(" ")}
-          fill="none"
-          stroke={stroke}
-          strokeWidth="2"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-      </svg>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--muted)" }}>
-        <span>{fmtDate(points[0].d)}</span>
-        <span style={{ color: stroke, fontWeight: 700 }}>{fmtPrice(vs[vs.length - 1])}</span>
-        <span>{fmtDate(points[points.length - 1].d)}</span>
-      </div>
-    </div>
-  );
-}
 
 export default function TransactionModal({ tx, onClose }: { tx: Transaction; onClose: () => void }) {
   const router = useRouter();
@@ -167,8 +118,6 @@ export default function TransactionModal({ tx, onClose }: { tx: Transaction; onC
             ⏳ Đây là đăng ký — nguồn chưa có báo cáo khớp thực hiện
           </div>
         )}
-
-        <Sparkline ticker={t.ticker || ""} />
 
         <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
           {t.ticker && (
