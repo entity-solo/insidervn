@@ -213,6 +213,26 @@ def _to_row(rec, ticker_info, id_counter):
     date_from = str(g("date_from", "fromDate", "dateFrom", "planBegin") or "")
     date_to = str(g("date_to", "toDate", "dateTo", "planEnd") or "")
     date_reg = str(g("date_reg", "registeredDate", "dateReg", "buyExpected", "sellExpected") or "")
+    # Source sometimes swaps the window ends (e.g. 2025-12-24 -> 2025-01-22).
+    if date_from and date_to and date_from > date_to:
+        date_from, date_to = date_to, date_from
+    # Treasury buybacks are executed by the company itself; the source puts
+    # funding-source labels ("Vốn tự có") in the person fields.
+    if tn_val == "GD cổ phiếu quỹ":
+        person_val = ""
+        rel_val = ""
+        person_type_val = None
+    else:
+        person_type_val = (
+            "org"
+            if _is_org(person_val, rel_val)
+            else ("person" if person_val.strip() and person_val.strip().lower() != "blank" else None)
+        )
+    # Negative volumes are source typos — treat as unknown.
+    if executed_v is not None and _as_int(executed_v) is not None and _as_int(executed_v) < 0:
+        executed_v = None
+    if shares_v is not None and _as_int(shares_v) is not None and _as_int(shares_v) < 0:
+        shares_v = None
     # ANY record whose action date lies in the future (e.g. planned
     # ownership-change reports) cannot have been executed yet.
     _action_day = date_from or date_reg
@@ -228,7 +248,7 @@ def _to_row(rec, ticker_info, id_counter):
         "id": id_counter,
         "ticker": ticker,
         "company": str(g("company", "organization") or info.get("company") or ticker),
-        "exchange": str(g("exchange", "market") or info.get("exchange") or ""),
+        "exchange": str(g("exchange", "market") or info.get("exchange") or "").replace("UPCOM", "UPCoM"),
         "person": person_val,
         "role": role_val,
         "role_key": role_key_val,
