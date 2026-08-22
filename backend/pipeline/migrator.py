@@ -140,6 +140,10 @@ def _classify_role(type_name: str, person: str, relationship: str, role_raw: str
     if tn == "GD CĐ lớn":
         return "shareholder", "Cổ đông lớn"
     if tn == "GD CĐ nội bộ":
+        # Surface the actual title (Chủ tịch HĐQT, Tổng Giám đốc, ...) so
+        # users can tell a chairman's buy from an accountant's.
+        if role_raw and role_raw.strip():
+            return "internal", f"Cổ đông nội bộ · {role_raw.strip()}"
         return "internal", "Cổ đông nội bộ"
     if tn == "GD cổ phiếu quỹ":
         return "treasury", "Cổ phiếu quỹ"

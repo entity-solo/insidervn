@@ -16,12 +16,10 @@ const TYPES = [
 ];
 const ROLES = [
   ["all", "Tất cả"],
-  ["board", "HĐQT"],
-  ["insider", "Người nội bộ"],
+  ["internal", "Nội bộ công ty"],
   ["shareholder", "Cổ đông lớn"],
   ["related", "Người liên quan"],
   ["treasury", "Cổ phiếu quỹ"],
-  ["internal", "CĐ nội bộ"],
 ];
 
 export default function FeedPage() {

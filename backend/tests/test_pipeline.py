@@ -65,7 +65,7 @@ def test_migrate_sample():
     assert r["executed"] == 800
     assert r["p_from"] == 50000.0
     assert r["role_key"] == "internal"
-    assert r["role"] == "Cổ đông nội bộ"
+    assert r["role"] == "Cổ đông nội bộ · Tổng Giám đốc"
     assert r["event_id"] == 999
 
 
