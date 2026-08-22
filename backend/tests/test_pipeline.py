@@ -70,5 +70,20 @@ def test_migrate_sample():
 
 
 def test_recompute_winrates():
+    # Seed a completed buy with performance so recompute always has input.
+    from app.database import SessionLocal
+    from app.models.transaction import Transaction
+
+    db = SessionLocal()
+    db.add(Transaction(
+        ticker="WINT", company="Win Test Co", exchange="HOSE", person="Win Tester",
+        role="", role_key="internal", person_type="person", type="buy",
+        shares=100, executed=100, p_from=10.0,
+        date_reg="2024-01-05", date_from="2024-01-05",
+        source="test", event_id=990001, status="Kết quả", type_name="",
+        perf_1m=12.0,
+    ))
+    db.commit()
+    db.close()
     n = winrate.recompute_winrates()
-    assert n > 0
+    assert n >= 1
