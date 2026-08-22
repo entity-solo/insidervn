@@ -95,7 +95,7 @@ export default function WatchlistPage() {
         </div>
       </div>
 
-      {selected && <TransactionModal tx={selected} items={trades} onClose={() => setSelected(null)} />}
+      {selected && <TransactionModal tx={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }

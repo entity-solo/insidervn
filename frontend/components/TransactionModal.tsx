@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -55,35 +55,12 @@ function Sparkline({ ticker }: { ticker: string }) {
   );
 }
 
-export default function TransactionModal({
-  tx,
-  onClose,
-  items,
-}: {
-  tx: Transaction;
-  onClose: () => void;
-  items?: Transaction[];
-}) {
+export default function TransactionModal({ tx, onClose }: { tx: Transaction; onClose: () => void }) {
   const router = useRouter();
-  const [current, setCurrent] = useState(tx);
-
-  // Sync when the parent opens the modal with a different row.
-  useEffect(() => setCurrent(tx), [tx]);
-
-  const idx = items ? items.findIndex((t) => t.id === current.id) : -1;
-  const hasPrev = items ? idx > 0 : false;
-  const hasNext = items ? idx >= 0 && idx < items.length - 1 : false;
-  const go = (delta: number) => {
-    if (!items || idx < 0) return;
-    const next = items[idx + delta];
-    if (next) setCurrent(next);
-  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      else if (e.key === "ArrowLeft" && hasPrev) go(-1);
-      else if (e.key === "ArrowRight" && hasNext) go(1);
     };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -91,10 +68,9 @@ export default function TransactionModal({
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onClose, hasPrev, hasNext, idx, items]);
+  }, [onClose]);
 
-  const t = current;
+  const t = tx;
   const isBuy = (t.type || "").includes("buy");
   const isPending = (t.executed ?? 0) === 0;
   const badge = isPending ? (isBuy ? "badge-reg_buy" : "badge-reg_sell") : isBuy ? "badge-buy" : "badge-sell";
@@ -113,12 +89,6 @@ export default function TransactionModal({
       >
         <div className="modal-header">
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {items && items.length > 1 && (
-              <span className="modal-nav">
-                <button className="dir-toggle" aria-label="Lệnh trước" disabled={!hasPrev} onClick={() => go(-1)}>←</button>
-                <button className="dir-toggle" aria-label="Lệnh sau" disabled={!hasNext} onClick={() => go(1)}>→</button>
-              </span>
-            )}
             <div className="modal-ticker">{t.ticker}</div>
             <span className={"tx-badge " + badge}>{badgeLabel}</span>
           </div>

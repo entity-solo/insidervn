@@ -80,7 +80,6 @@ function RallyRow({ tx }: { tx: Transaction }) {
 export default function DiscoverPage() {
   const [wrFilter, setWrFilter] = useState("all");
   const [selected, setSelected] = useState<Transaction | null>(null);
-  const [selList, setSelList] = useState<Transaction[] | undefined>(undefined);
 
   const clusterBuy = useQuery({
     queryKey: ["clusters", "buy", 14],
@@ -131,7 +130,6 @@ export default function DiscoverPage() {
             tx={tx}
             onClick={() => {
               setSelected(tx);
-              setSelList(dip.data ?? []);
             }}
           />
         )}
@@ -169,7 +167,6 @@ export default function DiscoverPage() {
             tx={tx}
             onClick={() => {
               setSelected(tx);
-              setSelList(largestBuy.data ?? []);
             }}
           />
         )}
@@ -187,7 +184,6 @@ export default function DiscoverPage() {
             tx={tx}
             onClick={() => {
               setSelected(tx);
-              setSelList(treasury.data ?? []);
             }}
           />
         )}
@@ -213,7 +209,7 @@ export default function DiscoverPage() {
         <WinrateRow key={w.person} w={w} rank={i + 1} />
       ))}
 
-      {selected && <TransactionModal tx={selected} items={selList} onClose={() => setSelected(null)} />}
+      {selected && <TransactionModal tx={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }

@@ -86,7 +86,7 @@ function StockPageInner() {
         </>
       )}
 
-      {selected && <TransactionModal tx={selected} items={search.data?.items} onClose={() => setSelected(null)} />}
+      {selected && <TransactionModal tx={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }
