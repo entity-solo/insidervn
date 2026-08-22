@@ -44,5 +44,6 @@ export const api = {
   treasury: (exchange = "all") => get<Transaction[]>("/signals/treasury", { exchange }),
   rally: (exchange = "all") => get<Transaction[]>("/signals/rally", { exchange }),
   price: (ticker: string) => get<PriceSeries>(`/prices/${ticker}`),
+  meta: () => get<{ last_crawl_at: string | null; last_crawl_ok: string | null }>("/meta"),
   search: (q: string) => get<SearchResult>("/search", { q }),
 };

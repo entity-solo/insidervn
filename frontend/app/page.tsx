@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { TxParams } from "@/lib/api";
 import type { Transaction } from "@/lib/types";
@@ -36,6 +36,11 @@ export default function FeedPage() {
     getNextPageParam: (last) => (last.page < last.total_pages ? last.page + 1 : undefined),
     initialPageParam: 1,
   });
+  const metaInfo = useQuery({
+    queryKey: ["meta"],
+    queryFn: () => api.meta(),
+    staleTime: 5 * 60_000,
+  });
 
   const items = data?.pages.flatMap((p) => p.items) ?? [];
   const fmtD = (s: string | null) => (s ? s.split("T")[0].split("-").reverse().join("/") : "—");
@@ -68,9 +73,15 @@ export default function FeedPage() {
           <div className="feed-subtitle">Theo dõi giao dịch mua/bán cổ phiếu của lãnh đạo, HĐQT & cổ đông lớn — cập nhật từ công bố chính thức.</div>
         </div>
         {latest && (
-          <div className="feed-updated">
-            <span className="feed-updated-dot" />
-            Dữ liệu đến {fmtD(latest)}
+          <div className="feed-updated" title="Thời điểm hệ thống quét nguồn lần cuối">
+            <span className={"feed-updated-dot" + (metaInfo.data?.last_crawl_ok === "0" ? " err" : "")} />
+            Quét {metaInfo.data?.last_crawl_at
+              ? new Date(metaInfo.data.last_crawl_at).toLocaleTimeString("vi-VN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  timeZone: "Asia/Ho_Chi_Minh",
+                })
+              : "—"}{metaInfo.data?.last_crawl_ok === "1" ? "" : " (lỗi)"} · Dữ liệu đến {fmtD(latest)}
           </div>
         )}
       </div>

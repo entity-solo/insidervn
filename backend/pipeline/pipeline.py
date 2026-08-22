@@ -2,12 +2,35 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timezone
 
 from app.database import init_db
 
 from . import enricher, migrator, scraper, winrate
 
 logger = logging.getLogger("pipeline")
+
+
+def _mark_crawl(ok: bool):
+    """Record the last crawl time so the UI can show real freshness."""
+    try:
+        from sqlalchemy import text
+
+        from app.database import SessionLocal
+
+        db = SessionLocal()
+        db.execute(text(
+            "CREATE TABLE IF NOT EXISTS app_meta (key VARCHAR(64) PRIMARY KEY, value TEXT)"
+        ))
+        stamp = datetime.now(timezone.utc).isoformat()
+        db.execute(text(
+            "INSERT INTO app_meta (key, value) VALUES ('last_crawl_at', :v), ('last_crawl_ok', :ok) "
+            "ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value"
+        ), {"v": stamp, "ok": "1" if ok else "0"})
+        db.commit()
+        db.close()
+    except Exception as e:  # never fail the pipeline over bookkeeping
+        logger.warning("Could not record last-crawl time: %s", e)
 
 
 def run_pipeline(full: bool = False, live: bool = False, enrich_offline: bool = True) -> dict:
@@ -51,6 +74,7 @@ def run_pipeline(full: bool = False, live: bool = False, enrich_offline: bool = 
             "error": str(e),
             "ok": False,
         }
+        _mark_crawl(ok=False)
         logger.info("=== Pipeline run aborted early: %s ===", summary)
         return summary
 
@@ -79,5 +103,6 @@ def run_pipeline(full: bool = False, live: bool = False, enrich_offline: bool = 
         "winrates": n_wr,
         "ok": True,
     }
+    _mark_crawl(ok=bool(enrich_res.get("error")) is False)
     logger.info("=== Pipeline run done: %s ===", summary)
     return summary
