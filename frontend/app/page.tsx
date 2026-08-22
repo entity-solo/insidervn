@@ -73,14 +73,10 @@ export default function FeedPage() {
           <div className="feed-subtitle">Theo dõi giao dịch mua/bán cổ phiếu của lãnh đạo, HĐQT & cổ đông lớn — cập nhật từ công bố chính thức.</div>
         </div>
         {latest && (
-          <div className="feed-updated" title="Thời điểm hệ thống quét nguồn lần cuối">
+          <div className="feed-updated" title="Ngày hệ thống quét nguồn lần cuối và ngày giao dịch mới nhất">
             <span className={"feed-updated-dot" + (metaInfo.data?.last_crawl_ok === "0" ? " err" : "")} />
             Quét {metaInfo.data?.last_crawl_at
-              ? new Date(metaInfo.data.last_crawl_at).toLocaleTimeString("vi-VN", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  timeZone: "Asia/Ho_Chi_Minh",
-                })
+              ? new Date(metaInfo.data.last_crawl_at).toLocaleDateString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
               : "—"}{metaInfo.data?.last_crawl_ok === "1" ? "" : " (lỗi)"} · Dữ liệu đến {fmtD(latest)}
           </div>
         )}
