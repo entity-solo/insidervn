@@ -122,6 +122,8 @@ def _parse_record(r: dict) -> dict:
         "linkedPerson": _first_real(r.get("DTLQLQ")),
         "volBefore": r.get("VolumeBefore") or r.get("RegisterVolumeBefore") or 0,
         "volAfter": r.get("VolumeAfter") or r.get("RegisterVolumeAfter") or 0,
+        "ownBefore": r.get("VolumeBeforePercent"),
+        "ownAfter": r.get("VolumeAfterPercent"),
         "registerBuy": r.get("RegisterBuyVolume") or 0,
         "actualBuy": r.get("BuyVolume") or 0,
         "registerSell": r.get("RegisterSellVolume") or 0,

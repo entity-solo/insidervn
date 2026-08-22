@@ -22,6 +22,9 @@ export interface Transaction {
   relationship: string | null;
   vol_before: number | null;
   vol_after: number | null;
+  own_before: number | null;
+  own_after: number | null;
+  file_url: string | null;
   perf_1w: number | null;
   perf_1m: number | null;
   dip: number | null;

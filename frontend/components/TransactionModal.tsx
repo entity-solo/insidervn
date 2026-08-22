@@ -81,6 +81,20 @@ export default function TransactionModal({ tx, onClose }: { tx: Transaction; onC
           <Row k="Ngày GD" v={fmtDate(t.date_from || t.date_reg)} />
           <Row k="KL trước" v={fmtNum(t.vol_before)} />
           <Row k="KL sau" v={fmtNum(t.vol_after)} />
+          {(t.own_before != null || t.own_after != null) && (
+            <Row
+              k="Sở hữu trước → sau"
+              v={
+                <span>
+                  {t.own_before != null ? t.own_before.toFixed(2) + "%" : "?"}
+                  {" → "}
+                  <b className={((t.own_after ?? 0) >= (t.own_before ?? 0)) === isBuy ? "pos" : "neg"}>
+                    {t.own_after != null ? t.own_after.toFixed(2) + "%" : "?"}
+                  </b>
+                </span>
+              }
+            />
+          )}
           {(t.perf_1w != null || t.perf_1m != null) && (
             <>
               <Row
@@ -120,6 +134,17 @@ export default function TransactionModal({ tx, onClose }: { tx: Transaction; onC
         )}
 
         <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+          {t.file_url && (
+            <a
+              className="btn"
+              style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+              href={t.file_url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              📄 Văn bản
+            </a>
+          )}
           {t.ticker && (
             <button
               className="btn btn-accent"

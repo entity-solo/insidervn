@@ -272,6 +272,9 @@ def _to_row(rec, ticker_info, id_counter):
         "relationship": rel_val,
         "vol_before": _as_int(g("volBefore", "volumeBefore")),
         "vol_after": _as_int(g("volAfter", "volumeAfter")),
+        "own_before": _as_float(g("ownBefore")),
+        "own_after": _as_float(g("ownAfter")),
+        "file_url": str(g("fileUrl") or ""),
     }
 
 
@@ -397,7 +400,9 @@ _UPDATABLE_COLS = [
     ("p_from", "::double precision"), ("p_to", "::double precision"),
     ("date_reg", None), ("date_from", None), ("date_to", None),
     ("source", None), ("status", None), ("type_name", None),
-    ("relationship", None), ("vol_before", "::bigint"), ("vol_after", "::bigint"),
+            ("relationship", None), ("vol_before", "::bigint"), ("vol_after", "::bigint"),
+            ("own_before", "::double precision"), ("own_after", "::double precision"),
+            ("file_url", None),
 ]
 
 
