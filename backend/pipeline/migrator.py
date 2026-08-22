@@ -195,6 +195,16 @@ def _to_row(rec, ticker_info, id_counter):
     role_key_val, role_val = _classify_role(
         tn_val, person_val, rel_val, g("role", "position"), g("roleKey", "role_key")
     )
+    # Related-party trades: surface who is linked and their position, e.g.
+    # "Người liên quan · CTHĐQT · Đặng Thành Tâm".
+    if role_key_val == "related":
+        bits = [b for b in [
+            role_val,
+            str(g("role", "position") or ""),
+            str(g("linkedPerson") or ""),
+        ] if b]
+        if bits:
+            role_val = " · ".join(bits)
     person_type_val = (
         "org"
         if _is_org(person_val, rel_val)

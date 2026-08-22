@@ -95,13 +95,22 @@ def _parse_dotnet_date(s):
     return None
 
 
+def _first_real(*vals):
+    """First non-empty, non-'Blank' value (Vietstock uses 'Blank' as placeholder)."""
+    for v in vals:
+        s = str(v or "").strip()
+        if s and s.lower() != "blank":
+            return s
+    return ""
+
+
 def _parse_record(r: dict) -> dict:
-    person = r.get("DTTHCD") or r.get("DTTHLQ") or r.get("NVTH") or ""
+    person = _first_real(r.get("DTTHCD"), r.get("DTTHLQ"), r.get("NVTH"))
     if person.startswith("Nhóm"):
         person = person.split(" - ")[0] if " - " in person else person
-    pos = r.get("PositionCD") or r.get("ExtraPositionNLQ") or r.get("ExtraPositionNLQEx") or ""
-    if pos == "Blank":
-        pos = ""
+    # Internal insiders carry PositionCD; related-party trades carry the
+    # linked person's position in ExtraPositionNLQ.
+    pos = _first_real(r.get("PositionCD"), r.get("ExtraPositionNLQ"), r.get("ExtraPositionNLQEx"))
     relationship = r.get("RelationShipType") or ""
     if relationship == "Blank":
         relationship = ""
@@ -110,6 +119,7 @@ def _parse_record(r: dict) -> dict:
         "person": person,
         "position": pos,
         "relationship": relationship,
+        "linkedPerson": _first_real(r.get("DTLQLQ")),
         "volBefore": r.get("VolumeBefore") or r.get("RegisterVolumeBefore") or 0,
         "volAfter": r.get("VolumeAfter") or r.get("RegisterVolumeAfter") or 0,
         "registerBuy": r.get("RegisterBuyVolume") or 0,
