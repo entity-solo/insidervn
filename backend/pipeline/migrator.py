@@ -187,6 +187,17 @@ def _to_row(rec, ticker_info, id_counter):
         if executed_v not in (None, "") and (shares_v in (None, "", 0)):
             shares_v = executed_v
         executed_v = None
+    # Same for ANY record whose action date lies in the future (e.g. planned
+    # ownership-change reports): a trade dated tomorrow cannot be done yet.
+    _action_day = date_from or date_reg
+    if _action_day and executed_v not in (None, ""):
+        try:
+            if datetime.strptime(_action_day[:10], "%Y-%m-%d").date() > datetime.now().date():
+                if shares_v in (None, "", 0):
+                    shares_v = executed_v
+                executed_v = None
+        except ValueError:
+            pass
 
     info = (ticker_info or {}).get(ticker, {}) or {}
     person_val = str(g("person", "insider") or "")
