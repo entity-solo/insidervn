@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import type { Transaction } from "@/lib/types";
@@ -54,22 +55,35 @@ function Sparkline({ ticker }: { ticker: string }) {
   );
 }
 
-export default function TransactionModal({ tx, onClose }: { tx: Transaction; onClose: () => void }) {
+export default function TransactionModal({
+  tx,
+  onClose,
+  items,
+}: {
+  tx: Transaction;
+  onClose: () => void;
+  items?: Transaction[];
+}) {
   const router = useRouter();
-  const isBuy = (tx.type || "").includes("buy");
-  const isPending = (tx.executed ?? 0) === 0;
-  const badge = isPending ? (isBuy ? "badge-reg_buy" : "badge-reg_sell") : isBuy ? "badge-buy" : "badge-sell";
-  const badgeLabel = isPending ? (isBuy ? "Đăng ký mua" : "Đăng ký bán") : isBuy ? "Đã mua" : "Đã bán";
-  const volume = (tx.executed ?? 0) > 0 ? tx.executed! : (tx.shares ?? 0);
-  const value = volume > 0 && tx.p_from ? volume * tx.p_from : null;
-  const today = new Date().toISOString().slice(0, 10);
-  const pendingOverdue =
-    isPending && !!(tx.date_to || tx.date_from || tx.date_reg) &&
-    (tx.date_to || tx.date_from || tx.date_reg)! < today;
+  const [current, setCurrent] = useState(tx);
+
+  // Sync when the parent opens the modal with a different row.
+  useEffect(() => setCurrent(tx), [tx]);
+
+  const idx = items ? items.findIndex((t) => t.id === current.id) : -1;
+  const hasPrev = items ? idx > 0 : false;
+  const hasNext = items ? idx >= 0 && idx < items.length - 1 : false;
+  const go = (delta: number) => {
+    if (!items || idx < 0) return;
+    const next = items[idx + delta];
+    if (next) setCurrent(next);
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowLeft" && hasPrev) go(-1);
+      else if (e.key === "ArrowRight" && hasNext) go(1);
     };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -77,7 +91,16 @@ export default function TransactionModal({ tx, onClose }: { tx: Transaction; onC
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onClose, hasPrev, hasNext, idx, items]);
+
+  const t = current;
+  const isBuy = (t.type || "").includes("buy");
+  const isPending = (t.executed ?? 0) === 0;
+  const badge = isPending ? (isBuy ? "badge-reg_buy" : "badge-reg_sell") : isBuy ? "badge-buy" : "badge-sell";
+  const badgeLabel = isPending ? (isBuy ? "Đăng ký mua" : "Đăng ký bán") : isBuy ? "Đã mua" : "Đã bán";
+  const volume = (t.executed ?? 0) > 0 ? t.executed! : (t.shares ?? 0);
+  const value = !isPending && volume > 0 && t.p_from ? volume * t.p_from : null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -86,15 +109,22 @@ export default function TransactionModal({ tx, onClose }: { tx: Transaction; onC
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label={`Chi tiết giao dịch ${tx.ticker || ""}`}
+        aria-label={`Chi tiết giao dịch ${t.ticker || ""}`}
       >
         <div className="modal-header">
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div className="modal-ticker">{tx.ticker}</div>
+            {items && items.length > 1 && (
+              <span className="modal-nav">
+                <button className="dir-toggle" aria-label="Lệnh trước" disabled={!hasPrev} onClick={() => go(-1)}>←</button>
+                <button className="dir-toggle" aria-label="Lệnh sau" disabled={!hasNext} onClick={() => go(1)}>→</button>
+              </span>
+            )}
+            <div className="modal-ticker">{t.ticker}</div>
             <span className={"tx-badge " + badge}>{badgeLabel}</span>
           </div>
           <div className="tx-company">
-            {tx.company} · {tx.exchange}
+            {t.company} · {t.exchange}
+            {t.status ? ` · ${t.status}` : ""}
           </div>
         </div>
 
@@ -111,29 +141,40 @@ export default function TransactionModal({ tx, onClose }: { tx: Transaction; onC
         )}
 
         <div className="modal-grid">
-          <Row k="Người" v={tx.person || "—"} />
-          <Row k="Vị trí" v={tx.role || "—"} />
-          <Row k="Loại GD" v={tx.type_name || "—"} />
-          <Row k="Khối lượng" v={fmtNum(volume) + " cp"} />
-          <Row k="Giá" v={fmtPrice(tx.p_from)} />
-          <Row k="Ngày GD" v={fmtDate(tx.date_from || tx.date_reg)} />
-          <Row k="KL trước" v={fmtNum(tx.vol_before)} />
-          <Row k="KL sau" v={fmtNum(tx.vol_after)} />
-          {(tx.perf_1w != null || tx.perf_1m != null) && (
+          <Row
+            k="Người"
+            v={
+              t.person ? (
+                <Link href={`/person/${encodeURIComponent(t.person)}`} className="modal-link" onClick={onClose}>
+                  {t.person}
+                </Link>
+              ) : (
+                "—"
+              )
+            }
+          />
+          <Row k="Vị trí" v={t.role || "—"} />
+          <Row k="Loại GD" v={t.type_name || "—"} />
+          <Row k={isPending ? "KL đăng ký" : "Khối lượng"} v={fmtNum(volume) + " cp"} />
+          <Row k="Giá" v={fmtPrice(t.p_from)} />
+          <Row k="Ngày GD" v={fmtDate(t.date_from || t.date_reg)} />
+          <Row k="KL trước" v={fmtNum(t.vol_before)} />
+          <Row k="KL sau" v={fmtNum(t.vol_after)} />
+          {(t.perf_1w != null || t.perf_1m != null) && (
             <>
               <Row
                 k="Sau 1 tuần"
                 v={
-                  <span className={tx.perf_1w != null ? (tx.perf_1w >= 0 ? "pos" : "neg") : ""}>
-                    {fmtPct(tx.perf_1w)}
+                  <span className={t.perf_1w != null ? (t.perf_1w >= 0 ? "pos" : "neg") : ""}>
+                    {fmtPct(t.perf_1w)}
                   </span>
                 }
               />
               <Row
                 k="Sau 1 tháng"
                 v={
-                  <span className={tx.perf_1m != null ? (tx.perf_1m >= 0 ? "pos" : "neg") : ""}>
-                    {fmtPct(tx.perf_1m)}
+                  <span className={t.perf_1m != null ? (t.perf_1m >= 0 ? "pos" : "neg") : ""}>
+                    {fmtPct(t.perf_1m)}
                   </span>
                 }
               />
@@ -141,33 +182,32 @@ export default function TransactionModal({ tx, onClose }: { tx: Transaction; onC
           )}
         </div>
 
-        {tx.dip != null && tx.dip <= -5 && (
+        {t.dip != null && t.dip <= -5 && (
           <div className="signal-note neg">
-            📉 Mua khi giá đã giảm {Math.abs(tx.dip)}% trong 28 ngày trước GD
+            📉 Mua khi giá đã giảm {Math.abs(t.dip)}% trong 28 ngày trước GD
           </div>
         )}
-        {tx.rally != null && tx.rally >= 5 && (
+        {t.rally != null && t.rally >= 5 && (
           <div className="signal-note pos">
-            📈 Bán sau khi giá đã tăng +{tx.rally}% trong 4 tuần trước GD
+            📈 Bán sau khi giá đã tăng +{t.rally}% trong 4 tuần trước GD
           </div>
         )}
-
-        {pendingOverdue && (
+        {isPending && (
           <div className="signal-note" style={{ background: "var(--surface-2)", color: "var(--muted)" }}>
-            ⏳ Đăng ký đã quá hạn nhưng nguồn chưa có báo cáo kết quả thực hiện
+            ⏳ Đây là đăng ký — nguồn chưa có báo cáo khớp thực hiện
           </div>
         )}
 
-        <Sparkline ticker={tx.ticker || ""} />
+        <Sparkline ticker={t.ticker || ""} />
 
         <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-          {tx.ticker && (
+          {t.ticker && (
             <button
               className="btn btn-accent"
               style={{ flex: 1 }}
-              onClick={() => router.push(`/stock/${tx.ticker}`)}
+              onClick={() => router.push(`/stock/${t.ticker}`)}
             >
-              Xem mã {tx.ticker} →
+              Xem mã {t.ticker} →
             </button>
           )}
           <button className="btn" onClick={onClose}>

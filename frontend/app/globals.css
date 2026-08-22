@@ -240,6 +240,11 @@ select.filter-select { background: var(--surface-2); border: 1px solid var(--bor
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes popIn { from { opacity: 0; transform: scale(0.96) translateY(8px); } to { opacity: 1; transform: none; } }
 .modal-header { border-left: 3px solid var(--accent); padding-left: 12px; margin-bottom: 14px; }
+.modal-nav { display: inline-flex; gap: 4px; }
+.modal-nav .dir-toggle:disabled { opacity: 0.35; cursor: default; }
+.modal-nav .dir-toggle:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
+.modal-link { color: var(--accent); font-weight: 700; }
+.modal-link:hover { text-decoration: underline; }
 .modal-ticker { font-size: 24px; font-weight: 800; }
 .modal-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; }
 .modal-row { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }

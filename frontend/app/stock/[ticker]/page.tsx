@@ -145,7 +145,7 @@ export default function TickerPage() {
         {!txs.isLoading && txs.data?.items.length === 0 && <div className="empty">Chưa có giao dịch cho mã này.</div>}
       </div>
 
-      {selected && <TransactionModal tx={selected} onClose={() => setSelected(null)} />}
+      {selected && <TransactionModal tx={selected} items={txs.data?.items} onClose={() => setSelected(null)} />}
     </div>
   );
 }

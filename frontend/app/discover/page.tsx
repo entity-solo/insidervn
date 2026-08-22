@@ -80,6 +80,7 @@ function RallyRow({ tx }: { tx: Transaction }) {
 export default function DiscoverPage() {
   const [wrFilter, setWrFilter] = useState("all");
   const [selected, setSelected] = useState<Transaction | null>(null);
+  const [selList, setSelList] = useState<Transaction[] | undefined>(undefined);
 
   const clusterBuy = useQuery({
     queryKey: ["clusters", "buy", 14],
@@ -124,7 +125,16 @@ export default function DiscoverPage() {
         desc="Lượt mua diễn ra sau khi giá đã giảm ≥5% trước ngày giao dịch"
         items={dip.data ?? []}
         isLoading={dip.isLoading}
-        renderItem={(tx) => <TransactionRow key={tx.id} tx={tx} onClick={() => setSelected(tx)} />}
+        renderItem={(tx) => (
+          <TransactionRow
+            key={tx.id}
+            tx={tx}
+            onClick={() => {
+              setSelected(tx);
+              setSelList(dip.data ?? []);
+            }}
+          />
+        )}
       />
 
       <SignalBlock
@@ -153,7 +163,16 @@ export default function DiscoverPage() {
         desc="Các lệnh mua có khối lượng thực hiện lớn nhất"
         items={largestBuy.data ?? []}
         isLoading={largestBuy.isLoading}
-        renderItem={(tx) => <TransactionRow key={tx.id} tx={tx} onClick={() => setSelected(tx)} />}
+        renderItem={(tx) => (
+          <TransactionRow
+            key={tx.id}
+            tx={tx}
+            onClick={() => {
+              setSelected(tx);
+              setSelList(largestBuy.data ?? []);
+            }}
+          />
+        )}
       />
 
       <SignalBlock
@@ -162,7 +181,16 @@ export default function DiscoverPage() {
         desc="Giao dịch công ty mua lại cổ phiếu quỹ"
         items={treasury.data ?? []}
         isLoading={treasury.isLoading}
-        renderItem={(tx) => <TransactionRow key={tx.id} tx={tx} onClick={() => setSelected(tx)} />}
+        renderItem={(tx) => (
+          <TransactionRow
+            key={tx.id}
+            tx={tx}
+            onClick={() => {
+              setSelected(tx);
+              setSelList(treasury.data ?? []);
+            }}
+          />
+        )}
       />
 
       <div className="section-label">Xếp hạng</div>
@@ -185,7 +213,7 @@ export default function DiscoverPage() {
         <WinrateRow key={w.person} w={w} rank={i + 1} />
       ))}
 
-      {selected && <TransactionModal tx={selected} onClose={() => setSelected(null)} />}
+      {selected && <TransactionModal tx={selected} items={selList} onClose={() => setSelected(null)} />}
     </div>
   );
 }

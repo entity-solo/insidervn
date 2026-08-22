@@ -168,7 +168,7 @@ export default function FeedPage() {
         </div>
       )}
 
-      {selected && <TransactionModal tx={selected} onClose={() => setSelected(null)} />}
+      {selected && <TransactionModal tx={selected} items={items} onClose={() => setSelected(null)} />}
     </div>
   );
 }
