@@ -17,6 +17,7 @@ const NAV: CmdItem[] = [
   { label: "Khám phá", href: "/discover", icon: "🧭" },
   { label: "Tra cứu", href: "/stock", icon: "🔎" },
   { label: "Theo dõi", href: "/watchlist", icon: "⭐" },
+  { label: "Giới thiệu", href: "/about", icon: "💡" },
 ];
 
 export default function CommandPalette() {
@@ -121,6 +122,11 @@ export default function CommandPalette() {
           {q.trim() && !search.isLoading && search.data && items.length === NAV.length && (
             <div className="cmd-empty">Không tìm thấy kết quả cho “{q}”.</div>
           )}
+        </div>
+        <div className="cmd-footer">
+          <span><span className="cmd-kbd">↑</span><span className="cmd-kbd">↓</span> di chuyển</span>
+          <span><span className="cmd-kbd">Enter</span> mở</span>
+          <span><span className="cmd-kbd">Esc</span> đóng</span>
         </div>
       </div>
     </div>

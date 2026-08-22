@@ -38,13 +38,38 @@ export default function FeedPage() {
   });
 
   const items = data?.pages.flatMap((p) => p.items) ?? [];
+  const total = data?.pages[0]?.total ?? 0;
+  const latest = items[0]?.date_from || items[0]?.date_reg || null;
+  const fmtD = (s: string | null) => (s ? s.split("T")[0].split("-").reverse().join("/") : "—");
 
   return (
     <div className="panel">
-      <div>
-        <div className="feed-title">Giao dịch nội bộ</div>
-        <div className="feed-subtitle">Theo dõi giao dịch mua/bán cổ phiếu của lãnh đạo, HĐQT & cổ đông lớn — cập nhật từ công bố chính thức.</div>
+      <div className="feed-head">
+        <div>
+          <div className="feed-title">Giao dịch nội bộ</div>
+          <div className="feed-subtitle">Theo dõi giao dịch mua/bán cổ phiếu của lãnh đạo, HĐQT & cổ đông lớn — cập nhật từ công bố chính thức.</div>
+        </div>
+        {latest && (
+          <div className="feed-updated">
+            <span className="feed-updated-dot" />
+            Cập nhật {fmtD(latest)}
+          </div>
+        )}
       </div>
+
+      {!isLoading && total > 0 && (
+        <div className="feed-stats">
+          <div className="dash-hero">
+            <div>
+              <div className="dash-hero-num">{total.toLocaleString("vi-VN")}</div>
+              <div className="dash-hero-sub">giao dịch nội bộ được công bố</div>
+            </div>
+            <div className="dash-hero-foot">
+              Đang hiển thị {items.length} · dữ liệu từ Vietstock
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="feed-toolbar">
         <div className="feed-filters">
@@ -84,6 +109,7 @@ export default function FeedPage() {
         {items.map((tx) => (
           <TransactionRow key={tx.id} tx={tx} onClick={() => setSelected(tx)} />
         ))}
+        {isFetchingNextPage && <div className="skeleton" />}
       </div>
 
       {!isLoading && !isError && items.length === 0 && (

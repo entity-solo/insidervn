@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Providers from "./providers";
 import Navbar from "@/components/Navbar";
@@ -7,6 +7,12 @@ import CommandPalette from "@/components/CommandPalette";
 import Footer from "@/components/Footer";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://insidervn.vercel.app";
+
+export const viewport: Viewport = {
+  themeColor: "#0a0c10",
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
