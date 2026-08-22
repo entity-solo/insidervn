@@ -62,6 +62,10 @@ export default function TransactionModal({ tx, onClose }: { tx: Transaction; onC
   const badgeLabel = isPending ? (isBuy ? "Đăng ký mua" : "Đăng ký bán") : isBuy ? "Đã mua" : "Đã bán";
   const volume = (tx.executed ?? 0) > 0 ? tx.executed! : (tx.shares ?? 0);
   const value = volume > 0 && tx.p_from ? volume * tx.p_from : null;
+  const today = new Date().toISOString().slice(0, 10);
+  const pendingOverdue =
+    isPending && !!(tx.date_to || tx.date_from || tx.date_reg) &&
+    (tx.date_to || tx.date_from || tx.date_reg)! < today;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -145,6 +149,12 @@ export default function TransactionModal({ tx, onClose }: { tx: Transaction; onC
         {tx.rally != null && tx.rally >= 5 && (
           <div className="signal-note pos">
             📈 Bán sau khi giá đã tăng +{tx.rally}% trong 4 tuần trước GD
+          </div>
+        )}
+
+        {pendingOverdue && (
+          <div className="signal-note" style={{ background: "var(--surface-2)", color: "var(--muted)" }}>
+            ⏳ Đăng ký đã quá hạn nhưng nguồn chưa có báo cáo kết quả thực hiện
           </div>
         )}
 

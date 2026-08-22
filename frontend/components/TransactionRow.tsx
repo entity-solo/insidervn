@@ -21,6 +21,11 @@ export default function TransactionRow({ tx, onClick }: { tx: Transaction; onCli
   const isBuy = (tx.type || "").includes("buy");
   const badgeType = isPending ? (isBuy ? "register_buy" : "register_sell") : (isBuy ? "buy" : "sell");
   const volume = (tx.executed ?? 0) > 0 ? tx.executed! : (tx.shares ?? 0);
+  // A registration whose whole window has passed without an execution report.
+  const today = new Date().toISOString().slice(0, 10);
+  const overdue =
+    isPending && !!(tx.date_to || tx.date_from || tx.date_reg) &&
+    (tx.date_to || tx.date_from || tx.date_reg)! < today;
   return (
     <div
       className={"tx-item " + (tx.type || "")}
@@ -42,7 +47,8 @@ export default function TransactionRow({ tx, onClick }: { tx: Transaction; onCli
       </div>
       <div>
         <span className={"tx-badge " + (TYPE_CLS[badgeType] || "")}>
-          {TYPE_LABEL[badgeType] || tx.type}
+          {isPending ? (isBuy ? "Đăng ký mua" : "Đăng ký bán") : TYPE_LABEL[badgeType] || tx.type}
+          {overdue && <span className="tx-overdue"> · quá hạn</span>}
         </span>
       </div>
       <div className="tx-right">
