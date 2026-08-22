@@ -31,13 +31,15 @@ def start():
     if _sched is not None:
         return _sched
     _sched = BackgroundScheduler(timezone="Asia/Ho_Chi_Minh")
-    _sched.add_job(_job, "cron", hour=1, minute=0, id="nightly_pipeline", misfire_grace_time=3600)
+    # Every 4 hours: insider disclosures lag trades by 1-3 days by regulation,
+    # so we poll the source often and publish whatever exists so far.
+    _sched.add_job(_job, "cron", hour="0-20/4", minute=0, id="pipeline_4h", misfire_grace_time=3600)
     # Weekly full re-crawl: reconciles statuses of old events (e.g. a "Đăng ký"
     # that later completed) which the incremental scan never revisits.
     _sched.add_job(_job_full, "cron", day_of_week="sun", hour=2, minute=0,
                    id="weekly_full_pipeline", misfire_grace_time=3600)
     _sched.start()
-    logger.info("Scheduler started (nightly 01:00 + weekly full Sun 02:00 Asia/Ho_Chi_Minh)")
+    logger.info("Scheduler started (every 4h + weekly full Sun 02:00 Asia/Ho_Chi_Minh)")
     return _sched
 
 
