@@ -38,9 +38,27 @@ export default function FeedPage() {
   });
 
   const items = data?.pages.flatMap((p) => p.items) ?? [];
-  const total = data?.pages[0]?.total ?? 0;
-  const latest = items[0]?.date_from || items[0]?.date_reg || null;
   const fmtD = (s: string | null) => (s ? s.split("T")[0].split("-").reverse().join("/") : "—");
+  const txDate = (t: Transaction) => t.date_from || t.date_reg || "";
+
+  // Ngày dữ liệu mới nhất THỰC TẾ (bỏ qua các đăng ký có ngày tương lai).
+  const today = new Date().toISOString().slice(0, 10);
+  let latest: string | null = null;
+  for (const t of items) {
+    const d = txDate(t);
+    if (d && d <= today && (!latest || d > latest)) latest = d;
+  }
+
+  // Hoạt động 14 ngày gần nhất (nằm trọn trong trang đầu của feed).
+  const cutoff = new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10);
+  const recent = items.filter((t) => txDate(t) >= cutoff);
+  const buys = recent.filter((t) => (t.type || "").includes("buy"));
+  const sells = recent.filter((t) => (t.type || "").includes("sell"));
+  const volOf = (t: Transaction) => (t.executed ?? 0) > 0 ? t.executed! : (t.shares ?? 0);
+  const netVol = buys.reduce((a, t) => a + volOf(t), 0) - sells.reduce((a, t) => a + volOf(t), 0);
+  const fmtShort = (n: number) =>
+    n >= 1e6 ? (n / 1e6).toFixed(1).replace(".0", "") + "tr"
+    : n >= 1e3 ? Math.round(n / 1e3) + "k" : String(n);
 
   return (
     <div className="panel">
@@ -52,20 +70,31 @@ export default function FeedPage() {
         {latest && (
           <div className="feed-updated">
             <span className="feed-updated-dot" />
-            Cập nhật {fmtD(latest)}
+            Dữ liệu đến {fmtD(latest)}
           </div>
         )}
       </div>
 
-      {!isLoading && total > 0 && (
+      {!isLoading && recent.length > 0 && (
         <div className="feed-stats">
           <div className="dash-hero">
-            <div>
-              <div className="dash-hero-num">{total.toLocaleString("vi-VN")}</div>
-              <div className="dash-hero-sub">giao dịch nội bộ được công bố</div>
+            <div className="dash-seg">
+              <div className="dash-hero-num">{recent.length}</div>
+              <div className="dash-hero-sub">GD trong 14 ngày qua</div>
             </div>
-            <div className="dash-hero-foot">
-              Đang hiển thị {items.length} · dữ liệu từ Vietstock
+            <div className="dash-seg">
+              <div className="dash-hero-num pos">{buys.length}</div>
+              <div className="dash-hero-sub">lượt mua</div>
+            </div>
+            <div className="dash-seg">
+              <div className="dash-hero-num neg">{sells.length}</div>
+              <div className="dash-hero-sub">lượt bán</div>
+            </div>
+            <div className="dash-seg">
+              <div className={"dash-hero-num " + (netVol >= 0 ? "pos" : "neg")}>
+                {netVol >= 0 ? "+" : "−"}{fmtShort(Math.abs(netVol))}
+              </div>
+              <div className="dash-hero-sub">KL ròng (cp)</div>
             </div>
           </div>
         </div>
@@ -119,6 +148,10 @@ export default function FeedPage() {
             Xóa bộ lọc
           </button>
         </div>
+      )}
+
+      {!isLoading && items.length > 0 && (
+        <div className="tx-count">Đang hiển thị {items.length} / {data?.pages[0]?.total.toLocaleString("vi-VN")} giao dịch</div>
       )}
 
       {hasNextPage && (
