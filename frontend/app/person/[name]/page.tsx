@@ -20,7 +20,7 @@ export default function PersonPage() {
 
   const txs = useQuery({
     queryKey: ["tx-person", name],
-    queryFn: () => api.transactions({ person: name, page_size: 200, sort: "date" }),
+    queryFn: () => api.transactions({ person: name, page_size: 100, sort: "date" }),
     enabled: !!name,
   });
   const wr = useQuery({
