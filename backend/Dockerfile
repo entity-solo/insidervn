@@ -18,7 +18,7 @@ RUN mkdir -p /app/reference data && chmod +x /app/docker-entrypoint.sh
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"
+  CMD python -c "import os,urllib.request,sys; port=os.environ.get('PORT','8000'); sys.exit(0 if urllib.request.urlopen(f'http://localhost:{port}/health').status==200 else 1)"
 
 # Railway injects $PORT; fall back to 8000. APP_MODE=worker runs the
 # pipeline scheduler instead of (or in addition to) the API.

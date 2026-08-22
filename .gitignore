@@ -25,3 +25,6 @@ price-cache-full.json
 
 # local runtime data (sqlite db, raw scrape cache)
 backend/data/
+
+# build artifacts
+tsconfig.tsbuildinfo

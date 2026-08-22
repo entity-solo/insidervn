@@ -15,12 +15,44 @@ def run_pipeline(full: bool = False, live: bool = False, enrich_offline: bool = 
 
     init_db()
 
-    raw = scraper.scrape(full=full, live=live)
-    logger.info("Scraped %s raw records", len(raw))
+    raw: list = []
+    inserted, updated = 0, 0
+    try:
+        if live:
+            raw = scraper.scrape(full=full, live=True)
+            logger.info("Scraped %s raw records", len(raw))
+            rows = migrator.migrate(raw)
+        else:
+            # Offline first-seed: use the complete legacy snapshot (instant) when
+            # present; otherwise the raw scrape cache; else nothing.
+            recs = migrator.load_migrated_records()
+            raw = recs
+            if recs and "roleKey" in recs[0]:
+                logger.info("Using legacy snapshot for offline seed (%s records)", len(recs))
+                rows = migrator.migrate_legacy(recs)
+            elif recs:
+                rows = migrator.migrate(recs)
+            else:
+                raw = scraper.scrape(full=full, live=False)
+                logger.info("Scraped %s raw records", len(raw))
+                rows = migrator.migrate(raw)
+        logger.info("Prepared %s rows", len(rows))
 
-    rows = migrator.migrate(raw)
-    inserted, updated = migrator.upsert_transactions(rows)
-    logger.info("Migrated: +%s new, ~%s updated", inserted, updated)
+        inserted, updated = migrator.upsert_transactions(rows)
+        logger.info("Migrated: +%s new, ~%s updated", inserted, updated)
+    except Exception as e:
+        # A scrape/migrate failure must not abort enrichment + winrates for
+        # the data already in the DB.
+        logger.exception("Scrape/migrate failed (pipeline continues): %s", e)
+        summary = {
+            "raw": len(raw),
+            "inserted": 0,
+            "updated": 0,
+            "error": str(e),
+            "ok": False,
+        }
+        logger.info("=== Pipeline run aborted early: %s ===", summary)
+        return summary
 
     enrich_res: dict = {}
     try:

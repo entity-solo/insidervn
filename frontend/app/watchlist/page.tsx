@@ -5,19 +5,19 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useWatchlist } from "@/store/watchlist";
 import TransactionRow from "@/components/TransactionRow";
-import { fmtNum } from "@/lib/format";
+import TransactionModal from "@/components/TransactionModal";
+import type { Transaction } from "@/lib/types";
 
 export default function WatchlistPage() {
-  const { tickers, persons, addTicker, removeTicker, addPerson, removePerson } = useWatchlist();
-  const [tickerInput, setTickerInput] = useState("");
-  const [personInput, setPersonInput] = useState("");
+  const { tickers, persons, removeTicker, removePerson } = useWatchlist();
+  const [selected, setSelected] = useState<Transaction | null>(null);
 
   const { data: trades, isLoading } = useQuery({
     queryKey: ["wl-trades", tickers, persons],
     queryFn: async () => {
       const queries = [...tickers, ...persons].map((q) => api.search(q).then((r) => r.items));
       const lists = await Promise.all(queries);
-      const map = new Map<number, any>();
+      const map = new Map<number, Transaction>();
       lists.flat().forEach((t) => map.set(t.id, t));
       return [...map.values()].sort((a, b) => (b.date_reg || "").localeCompare(a.date_reg || "")).slice(0, 60);
     },
@@ -27,7 +27,7 @@ export default function WatchlistPage() {
   return (
     <div className="panel">
       <div>
-        <div className="eyebrow">Danh mục cá nhân</div>
+        <div className="eyebrow">Cá nhân</div>
         <div className="feed-title">Theo dõi</div>
         <div className="feed-subtitle">Theo dõi lãnh đạo và mã CP bạn quan tâm</div>
       </div>
@@ -61,67 +61,14 @@ export default function WatchlistPage() {
         </div>
       </div>
 
-      <div className="wl-add">
-        <div className="wl-add-group">
-          <input
-            className="wl-input uppercase"
-            placeholder="Thêm mã: VIC, FPT…"
-            value={tickerInput}
-            onChange={(e) => setTickerInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && tickerInput.trim()) {
-                addTicker(tickerInput);
-                setTickerInput("");
-              }
-            }}
-          />
-          <button
-            className="btn btn-accent"
-            onClick={() => {
-              if (tickerInput.trim()) {
-                addTicker(tickerInput);
-                setTickerInput("");
-              }
-            }}
-          >
-            + Mã CP
-          </button>
-        </div>
-        <div className="wl-add-group">
-          <input
-            className="wl-input"
-            placeholder="Thêm người: Đoàn Nguyên Đức…"
-            value={personInput}
-            onChange={(e) => setPersonInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && personInput.trim()) {
-                addPerson(personInput);
-                setPersonInput("");
-              }
-            }}
-          />
-          <button
-            className="btn btn-accent"
-            onClick={() => {
-              if (personInput.trim()) {
-                addPerson(personInput);
-                setPersonInput("");
-              }
-            }}
-          >
-            + Người
-          </button>
-        </div>
-      </div>
-
       <div className="signal-section">
         <div className="signal-section-title">Mã CP đang theo dõi</div>
         {tickers.length === 0 && <div className="tx-company">Chưa có</div>}
         <div>
           {tickers.map((t) => (
-            <span key={t} className="chip" style={{ cursor: "pointer" }} onClick={() => removeTicker(t)} title="Xoá">
+            <button key={t} className="chip" style={{ cursor: "pointer" }} onClick={() => removeTicker(t)} title="Xoá">
               {t} ✕
-            </span>
+            </button>
           ))}
         </div>
       </div>
@@ -130,9 +77,9 @@ export default function WatchlistPage() {
         {persons.length === 0 && <div className="tx-company">Chưa có</div>}
         <div>
           {persons.map((p) => (
-            <span key={p} className="chip" style={{ cursor: "pointer" }} onClick={() => removePerson(p)} title="Xoá">
+            <button key={p} className="chip" style={{ cursor: "pointer" }} onClick={() => removePerson(p)} title="Xoá">
               {p} ✕
-            </span>
+            </button>
           ))}
         </div>
       </div>
@@ -142,11 +89,13 @@ export default function WatchlistPage() {
         {isLoading && <div className="skeleton" />}
         <div className="tx-list">
           {(trades ?? []).map((tx) => (
-            <TransactionRow key={tx.id} tx={tx} onClick={() => {}} />
+            <TransactionRow key={tx.id} tx={tx} onClick={() => setSelected(tx)} />
           ))}
           {!isLoading && (trades?.length ?? 0) === 0 && <div className="empty">Chưa có giao dịch</div>}
         </div>
       </div>
+
+      {selected && <TransactionModal tx={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }

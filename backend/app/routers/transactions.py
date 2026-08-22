@@ -1,7 +1,7 @@
 import re
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
@@ -23,6 +23,8 @@ def get_max_date(db: Session) -> str:
 def period_cutoff(period: str, anchor: str) -> str:
     if re.fullmatch(r"\d{4}", period):
         return f"{period}-01-01"
+    if not re.fullmatch(r"\d{1,4}", period):
+        raise HTTPException(status_code=400, detail=f"Invalid period: {period}")
     days = int(period)
     d = datetime.strptime(anchor, "%Y-%m-%d") - timedelta(days=days)
     return d.strftime("%Y-%m-%d")
@@ -68,7 +70,7 @@ def list_transactions(
     elif type == "sell":
         query = query.filter(Transaction.type == "sell")
     elif type == "register":
-        query = query.filter(Transaction.executed == None)  # noqa: E711
+        query = query.filter(or_(Transaction.executed == None, Transaction.executed == 0))
     elif type in EXCHANGES:
         query = query.filter(Transaction.exchange == type)
 

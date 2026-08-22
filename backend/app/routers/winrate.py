@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+import json
+
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -10,16 +12,30 @@ from ..cache import get_or_set
 router = APIRouter(prefix="/api/winrate", tags=["winrate"])
 
 
+def _parse_tickers(raw: str | None) -> list[str]:
+    if not raw:
+        return []
+    try:
+        val = json.loads(raw)
+        return val if isinstance(val, list) else [str(val)]
+    except (ValueError, TypeError):
+        return [t.strip() for t in raw.split(",") if t.strip()]
+
+
 @router.get("", response_model=list[WinrateOut])
 def list_winrate(
     filter: str = "all",
+    person: str = "",
     limit: int = Query(200, ge=1, le=1000),
     db: Session = Depends(get_db),
 ):
-    cache_key = f"wr|{filter}|{limit}"
+    person = person.strip()
+    cache_key = f"wr|{filter}|{person}|{limit}"
 
     def _build():
         q = db.query(Winrate)
+        if person:
+            q = q.filter(func.lower(Winrate.person) == person.lower())
         if filter == "winner":
             q = q.filter(Winrate.wr >= 50)
         elif filter == "loser":
@@ -37,7 +53,7 @@ def list_winrate(
                 total_trades=r.total_trades,
                 pnl=r.pnl,
                 total=r.total,
-                tickers=r.tickers.split(",") if r.tickers else [],
+                tickers=_parse_tickers(r.tickers),
             ).model_dump()
             for r in rows
         ]

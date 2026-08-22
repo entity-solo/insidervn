@@ -27,7 +27,7 @@ logger = logging.getLogger("pipeline.scraper")
 API_URL = "https://finance.vietstock.vn/data/eventstransferdata"
 PAGE_URL = "https://finance.vietstock.vn/giao-dich-noi-bo"
 PAGE_SIZE = 50
-FULL_RANGE = ("01/01/2020", "31/12/2026")
+FULL_RANGE = ("01/01/2020", f"31/12/{datetime.now().year}")
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
 RAW_DIR = os.path.join(BASE_DIR, "data", "raw")
@@ -192,14 +192,9 @@ def _scrape_live(full: bool = False, since: datetime | None = None) -> list[dict
     fdate, tdate = FULL_RANGE
     logger.info("Scraper LIVE mode: %s %s -> %s", "FULL" if full else "INCREMENTAL", fdate, tdate)
 
-    # Smart resume: a previous (interrupted) full run left `existing` records
-    # that are the first N contiguous pages (sorted by EventID). Continue from
-    # the next page instead of re-fetching everything. The `seen` set still
-    # guards against duplicates.
+    # A full run always scans from page 1 so that statuses of OLD events
+    # (e.g. a "Đăng ký" that later completed) get refreshed too.
     start_page = 1
-    if full and existing:
-        start_page = len(existing) // PAGE_SIZE + 1
-        logger.info("Resuming full scrape from page %s (already have %s)", start_page, len(existing))
 
     token = _get_token(session)
     page = start_page

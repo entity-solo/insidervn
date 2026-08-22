@@ -10,6 +10,7 @@ interface WatchlistState {
   removeTicker: (t: string) => void;
   addPerson: (p: string) => void;
   removePerson: (p: string) => void;
+  setAll: (tickers: string[], persons: string[]) => void;
 }
 
 export const useWatchlist = create<WatchlistState>()(
@@ -29,6 +30,7 @@ export const useWatchlist = create<WatchlistState>()(
           return s.persons.includes(v) ? s : { persons: [...s.persons, v] };
         }),
       removePerson: (p) => set((s) => ({ persons: s.persons.filter((x) => x !== p) })),
+      setAll: (tickers, persons) => set({ tickers, persons }),
     }),
     { name: "insidervn-watchlist" }
   )

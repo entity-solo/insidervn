@@ -13,7 +13,7 @@ export default function WinrateRow({ w, rank }: { w: Winrate; rank: number }) {
       <div className="tx-main">
         <div className="tx-person">{w.person}</div>
         <div className="tx-company">
-          {w.tickers.join(", ")} — {w.wins}thắng/{w.losses}thua
+          {w.tickers.join(", ")} — {w.wins} thắng / {w.losses} thua
         </div>
       </div>
       <div style={{ textAlign: "right", minWidth: 70 }}>

@@ -1,17 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import TransactionRow from "@/components/TransactionRow";
 import TransactionModal from "@/components/TransactionModal";
 import type { Transaction } from "@/lib/types";
 
-export default function StockPage() {
+function StockPageInner() {
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Transaction | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlTicker = searchParams.get("ticker") || "";
+
+  useEffect(() => {
+    if (urlTicker) setQ(urlTicker);
+  }, [urlTicker]);
 
   const search = useQuery({
     queryKey: ["search", q],
@@ -82,5 +88,13 @@ export default function StockPage() {
 
       {selected && <TransactionModal tx={selected} onClose={() => setSelected(null)} />}
     </div>
+  );
+}
+
+export default function StockPage() {
+  return (
+    <Suspense fallback={<div className="panel"><div className="skeleton" /></div>}>
+      <StockPageInner />
+    </Suspense>
   );
 }

@@ -7,7 +7,7 @@ const TABS = [
   ["/", "Bảng tin", "📋"],
   ["/discover", "Khám phá", "🧭"],
   ["/stock", "Tra cứu", "🔎"],
-  ["/watchlist", "Danh mục", "⭐"],
+  ["/watchlist", "Theo dõi", "⭐"],
 ];
 
 export default function BottomNav() {

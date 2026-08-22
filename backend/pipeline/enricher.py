@@ -15,9 +15,10 @@ import json
 import logging
 import os
 import time
-from datetime import datetime, timedelta
+import bisect
+from datetime import date, datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 from app.config import SOURCE_DIR
 from app.database import SessionLocal
@@ -28,7 +29,7 @@ logger = logging.getLogger("pipeline.enricher")
 
 CACHE_FILE = os.path.join(SOURCE_DIR, "price-cache-full.json")
 WEEK_START = datetime(2020, 1, 1).date()
-WEEK_END = datetime(2026, 12, 31).date()
+WEEK_END = date(datetime.now().year, 12, 31)
 
 
 # ---------- price helpers (ported from legacy enrich-data.py) ----------
@@ -74,6 +75,82 @@ def _max_drawdown_before(hist: dict, date_str: str, lookback: int = 28) -> float
         if dd < mdd:
             mdd = dd
     return round(mdd * 100, 2)
+
+
+def _chunked(seq, n):
+    for i in range(0, len(seq), n):
+        yield seq[i:i + n]
+
+
+def _price_at_sorted(h: dict, sd: list, date_str: str):
+    if not sd or not date_str:
+        return None
+    i = bisect.bisect_right(sd, date_str) - 1
+    if i >= 0:
+        return h[sd[i]]
+    return None
+
+
+def _price_after_sorted(h: dict, sd: list, date_str: str, days: int):
+    if not sd or not date_str:
+        return None
+    base = datetime.strptime(date_str, "%Y-%m-%d")
+    target = (base + timedelta(days=days)).strftime("%Y-%m-%d")
+    i = bisect.bisect_left(sd, target)
+    if i < len(sd):
+        return h[sd[i]]
+    return None
+
+
+def _price_before_sorted(h: dict, sd: list, date_str: str):
+    if not sd or not date_str:
+        return None
+    i = bisect.bisect_right(sd, date_str) - 1
+    if i >= 0:
+        return h[sd[i]]
+    return None
+
+
+def _rally_before(hist: dict, sd: list, date_str: str, lookback: int = 28):
+    """% price change over the `lookback` days before a sell (mirrors dip)."""
+    p1 = _price_before_sorted(hist, sd, date_str)
+    if not p1:
+        return None
+    base = datetime.strptime(date_str, "%Y-%m-%d")
+    tgt = (base - timedelta(days=lookback)).strftime("%Y-%m-%d")
+    p0 = _price_before_sorted(hist, sd, tgt)
+    if not p0 or p0 <= 0:
+        return None
+    return round((p1 - p0) / p0 * 100, 2)
+
+
+def _bulk_update_perf(session, updates, chunk: int = 500):
+    """Update perf columns in chunks using a plain multi-row UPDATE.
+
+    ``bulk_update_mappings`` hangs on Supabase's transaction-pooler (pgbouncer
+    in transaction mode); a single parameterized UPDATE ... FROM (VALUES) is
+    pooler-friendly and commits per chunk."""
+    for part in _chunked(updates, chunk):
+        vals = []
+        params = {}
+        for i, u in enumerate(part):
+            vals.append(f"(:id{i}, :w{i}, :m{i}, :d{i}, :r{i})")
+            params[f"id{i}"] = u["id"]
+            params[f"w{i}"] = u["perf_1w"]
+            params[f"m{i}"] = u["perf_1m"]
+            params[f"d{i}"] = u["dip"]
+            params[f"r{i}"] = u["rally"]
+        sql = (
+            "UPDATE transactions AS t "
+            "SET perf_1w=v.perf_1w::double precision, "
+            "perf_1m=v.perf_1m::double precision, "
+            "dip=v.dip::double precision, "
+            "rally=v.rally::double precision "
+            "FROM (VALUES " + ", ".join(vals) + ") AS v(id, perf_1w, perf_1m, dip, rally) "
+            "WHERE t.id=v.id"
+        )
+        session.execute(text(sql), params)
+        session.commit()
 
 
 def _week_dates():
@@ -127,7 +204,7 @@ def fetch_prices_live(all_tickers: list[str], cap: int = 760, existing: set[str]
         if wait > 0:
             time.sleep(wait)
         try:
-            df = Quote(symbol=t, source="KBS").history(start="2020-01-01", end="2026-12-31")
+            df = Quote(symbol=t, source="KBS").history(start="2020-01-01", end=f"{datetime.now().year}-12-31")
             if df is None or len(df) == 0:
                 cache[t] = {}
                 continue
@@ -164,27 +241,34 @@ def enrich(db=None, offline: bool = True, cache_path: str | None = None) -> dict
         rows = session.execute(select(Transaction)).scalars().all()
         updates = []
         hit = 0
+        sorted_cache = {}
         for d in rows:
             tk = d.ticker
             h = hist.get(tk)
             if not h:
                 continue
+            sd = sorted_cache.get(tk)
+            if sd is None:
+                sd = sorted(h.keys())
+                sorted_cache[tk] = sd
             tdate = d.date_from or d.date_reg
-            pt = _price_at(h, tdate)
+            pt = _price_at_sorted(h, sd, tdate)
             if not pt:
                 continue
             hit += 1
-            p1 = _price_after(h, tdate, 7)
-            p2 = _price_after(h, tdate, 30)
+            p1 = _price_after_sorted(h, sd, tdate, 7)
+            p2 = _price_after_sorted(h, sd, tdate, 30)
             perf_1w = round((p1 - pt) / pt * 100, 1) if p1 else None
             perf_1m = round((p2 - pt) / pt * 100, 1) if p2 else None
             dip = None
+            rally = None
             if d.type and "buy" in d.type:
                 dip = _max_drawdown_before(h, tdate)
-            updates.append({"id": d.id, "perf_1w": perf_1w, "perf_1m": perf_1m, "dip": dip})
+            elif d.type and "sell" in d.type:
+                rally = _rally_before(h, sd, tdate)
+            updates.append({"id": d.id, "perf_1w": perf_1w, "perf_1m": perf_1m, "dip": dip, "rally": rally})
         if updates:
-            session.bulk_update_mappings(Transaction, updates)
-            session.commit()
+            _bulk_update_perf(session, updates, chunk=500)
         logger.info("Enriched %s/%s transactions with prices", hit, len(rows))
 
         # weekly price series -> prices table
@@ -201,11 +285,12 @@ def enrich(db=None, offline: bool = True, cache_path: str | None = None) -> dict
                 to_update.append(row)
             else:
                 to_insert.append(row)
-        if to_insert:
-            session.bulk_insert_mappings(Price, to_insert)
-        if to_update:
-            session.bulk_update_mappings(Price, to_update)
-        session.commit()
+        for part in _chunked(to_insert, 500):
+            session.bulk_insert_mappings(Price, part)
+            session.commit()
+        for part in _chunked(to_update, 500):
+            session.bulk_update_mappings(Price, part)
+            session.commit()
         logger.info("Price series stored for %s tickers", len(series))
         return {"enriched": hit, "total": len(rows), "prices": len(series)}
     finally:

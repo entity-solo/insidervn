@@ -6,6 +6,7 @@ export interface Transaction {
   person: string | null;
   role: string | null;
   role_key: string | null;
+  person_type: string | null;
   type: string | null;
   shares: number | null;
   executed: number | null;
@@ -24,6 +25,7 @@ export interface Transaction {
   perf_1w: number | null;
   perf_1m: number | null;
   dip: number | null;
+  rally: number | null;
 }
 
 export interface PaginatedTransactions {
@@ -61,20 +63,6 @@ export interface Cluster {
   end: string | null;
   total_shares: number;
   total_value: number;
-}
-
-export interface Buyer {
-  person: string;
-  role: string | null;
-  count: number;
-  value: number;
-  tickers: string[];
-}
-
-export interface Highlights {
-  clusters: Cluster[];
-  buys: Transaction[];
-  buyers: Buyer[];
 }
 
 export interface SearchResult {

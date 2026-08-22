@@ -59,9 +59,9 @@ def main():
             return
 
     if args.schedule:
-        if not args.full and _db_is_empty():
-            print("DB empty -> running full seed before starting scheduler")
-            run_pipeline(full=True, live=True)
+        # Initial full seed is performed out-of-band (batched, from a one-shot
+        # job) to avoid a long-running transaction against pooled Postgres.
+        # The worker here only runs the nightly incremental schedule.
         start()
         print("Worker running (nightly 01:00). Press Ctrl+C to stop.")
         try:

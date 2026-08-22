@@ -11,6 +11,7 @@ class TransactionOut(BaseModel):
     person: Optional[str] = None
     role: Optional[str] = None
     role_key: Optional[str] = None
+    person_type: Optional[str] = None
     type: Optional[str] = None
     shares: Optional[int] = None
     executed: Optional[int] = None
@@ -29,6 +30,7 @@ class TransactionOut(BaseModel):
     perf_1w: Optional[float] = None
     perf_1m: Optional[float] = None
     dip: Optional[float] = None
+    rally: Optional[float] = None
 
     model_config = {"from_attributes": True}
 

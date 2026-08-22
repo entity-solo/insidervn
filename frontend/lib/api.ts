@@ -1,6 +1,5 @@
 import type {
   Cluster,
-  Highlights,
   PaginatedTransactions,
   PriceSeries,
   SearchResult,
@@ -8,10 +7,8 @@ import type {
   Winrate,
 } from "./types";
 
-const BASE = process.env.NEXT_PUBLIC_API_BASE || ""; // relative when using rewrites
-
 async function get<T>(path: string, params?: Record<string, string | number | undefined>): Promise<T> {
-  const url = new URL(`${BASE}/api${path}`, window.location.origin);
+  const url = new URL(`/api${path}`, window.location.origin);
   if (params) {
     for (const [k, v] of Object.entries(params)) {
       if (v !== undefined && v !== "" && v !== "all") url.searchParams.set(k, String(v));
@@ -38,11 +35,14 @@ export interface TxParams {
 
 export const api = {
   transactions: (p: TxParams) => get<PaginatedTransactions>("/transactions", p as any),
-  winrates: (filter: string) => get<Winrate[]>("/winrate", { filter }),
-  clusters: (window: number, exchange: string) => get<Cluster[]>("/signals/clusters", { window, exchange }),
-  dip: (exchange: string) => get<Transaction[]>("/signals/dip", { exchange }),
-  highlights: (window: number, exchange: string) =>
-    get<Highlights>("/signals/highlights", { window, exchange }),
+  winrates: (filter: string, person = "") => get<Winrate[]>("/winrate", { filter, person }),
+  clusters: (window: number, exchange = "all", side = "buy", limit = 100) =>
+    get<Cluster[]>("/signals/clusters", { window, exchange, side, limit }),
+  dip: (exchange = "all") => get<Transaction[]>("/signals/dip", { exchange }),
+  largest: (side: "buy" | "sell" = "buy", exchange = "all") =>
+    get<Transaction[]>("/signals/largest", { side, exchange }),
+  treasury: (exchange = "all") => get<Transaction[]>("/signals/treasury", { exchange }),
+  rally: (exchange = "all") => get<Transaction[]>("/signals/rally", { exchange }),
   price: (ticker: string) => get<PriceSeries>(`/prices/${ticker}`),
   search: (q: string) => get<SearchResult>("/search", { q }),
 };
