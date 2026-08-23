@@ -4,11 +4,23 @@ import Link from "next/link";
 import type { Winrate } from "@/lib/types";
 import { fmtNum } from "@/lib/format";
 
-export default function WinrateRow({ w, rank }: { w: Winrate; rank: number }) {
+export default function WinrateRow({
+  w,
+  rank,
+  tone,
+}: {
+  w: Winrate;
+  rank: number;
+  tone?: "gold" | "silver" | "bronze";
+}) {
   const isWin = w.wr >= 50;
   const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : <span className="wr-rank-num">{rank}</span>;
   return (
-    <Link href={`/person/${encodeURIComponent(w.person)}`} className="wr-item" style={{ display: "block" }}>
+    <Link
+      href={`/person/${encodeURIComponent(w.person)}`}
+      className={"wr-item" + (tone ? ` tone-${tone}` : "")}
+      style={{ display: "block" }}
+    >
       <div className="medal">{medal}</div>
       <div className="tx-main">
         <div className="tx-person">{w.person}</div>

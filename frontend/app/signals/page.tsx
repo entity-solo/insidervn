@@ -96,11 +96,11 @@ function BlockShell({
   );
 }
 
-function ClusterBlock({ id, icon, title, side, desc }: { id: string; icon: string; title: string; side: "buy" | "sell"; desc: string }) {
+function ClusterBlock({ id, icon, title, side, desc, window: winDays }: { id: string; icon: string; title: string; side: "buy" | "sell"; desc: string; window: number }) {
   const { ref, inView } = useInView<HTMLDivElement>();
   const q = useQuery({
-    queryKey: ["clusters", side],
-    queryFn: () => api.clusters(14, "all", side, 100),
+    queryKey: ["clusters", side, winDays],
+    queryFn: () => api.clusters(winDays, "all", side, 100),
     enabled: inView,
   });
   return (
@@ -148,6 +148,7 @@ const JUMPS: [string, string][] = [
 ];
 
 export default function SignalsPage() {
+  const [winDays, setWinDays] = useState(14);
   const rallyRender = useMemo(
     () => (tx: Transaction, select: (t: Transaction) => void) => <RallyRow tx={tx} />,
     []
@@ -161,16 +162,28 @@ export default function SignalsPage() {
       />
 
       <div className="feed-toolbar" style={{ marginTop: 12 }}>
-        {JUMPS.map(([label, id]) => (
-          <button key={id} className="filter-btn" onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })}>
-            {label}
-          </button>
-        ))}
+        <div className="filters">
+          {JUMPS.map(([label, id]) => (
+            <button key={id} className="filter-btn" onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="filter-group">
+          <span className="filter-label">Cửm</span>
+          <div className="filters">
+            {[14, 30].map((d) => (
+              <button key={d} className={"filter-btn" + (winDays === d ? " active" : "")} onClick={() => setWinDays(d)}>
+                {d} ngày
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <ClusterBlock
-        id="mua-ro" icon="🔥" title="Mua rổ" side="buy"
-        desc="Nhóm từ 2 insider/người liên quan trở lên cùng mua một mã trong 14 ngày"
+        id="mua-ro" icon="🔥" title="Mua rổ" side="buy" window={winDays}
+        desc={`Nhóm từ 2 insider/người liên quan trở lên cùng mua một mã trong ${winDays} ngày`}
       />
 
       <TxBlock
@@ -181,8 +194,8 @@ export default function SignalsPage() {
       />
 
       <ClusterBlock
-        id="ban-ro" icon="🔻" title="Bán rổ" side="sell"
-        desc="Nhóm từ 2 insider/người liên quan trở lên cùng bán một mã trong 14 ngày"
+        id="ban-ro" icon="🔻" title="Bán rổ" side="sell" window={winDays}
+        desc={`Nhóm từ 2 insider/người liên quan trở lên cùng bán một mã trong ${winDays} ngày`}
       />
 
       <TxBlock

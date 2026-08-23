@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -64,9 +65,10 @@ export default function WatchlistPage() {
               <div className="signal-section-title">Mã CP đang theo dõi</div>
               <div>
                 {tickers.map((t) => (
-                  <button key={t} className="filter-btn" style={{ marginRight: 6 }} onClick={() => removeTicker(t)} title="Bỏ theo dõi">
-                    🏷️ {t} ✕
-                  </button>
+                  <span key={t} className="wl-chip">
+                    <Link href={`/stock/${t}`}>{t}</Link>
+                    <button onClick={() => removeTicker(t)} title="Bỏ theo dõi" aria-label={`Bỏ theo dõi ${t}`}>✕</button>
+                  </span>
                 ))}
               </div>
             </div>
@@ -77,9 +79,10 @@ export default function WatchlistPage() {
               <div className="signal-section-title">Lãnh đạo đang theo dõi</div>
               <div>
                 {persons.map((p) => (
-                  <button key={p} className="filter-btn" style={{ marginRight: 6 }} onClick={() => removePerson(p)} title="Bỏ theo dõi">
-                    👤 {p} ✕
-                  </button>
+                  <span key={p} className="wl-chip">
+                    <Link href={`/person/${encodeURIComponent(p)}`}>{p}</Link>
+                    <button onClick={() => removePerson(p)} title="Bỏ theo dõi" aria-label={`Bỏ theo dõi ${p}`}>✕</button>
+                  </span>
                 ))}
               </div>
             </div>

@@ -17,6 +17,7 @@ export default function TickerPage() {
   const ticker = String(params.ticker || "").toUpperCase();
   const [selected, setSelected] = useState<Transaction | null>(null);
   const [jump, setJump] = useState("");
+  const [range, setRange] = useState<"3m" | "6m" | "1y">("1y");
   const { tickers: wlTickers, addTicker, removeTicker } = useWatchlist();
   const watching = wlTickers.includes(ticker);
 
@@ -133,7 +134,24 @@ export default function TickerPage() {
         </div>
       </div>
 
-      {price.data && <PriceChart data={price.data} />}
+      {price.data && (
+        <>
+          <div className="filters" style={{ marginTop: 14 }}>
+            {[["3m", "3 tháng"], ["6m", "6 tháng"], ["1y", "1 năm"]].map(([v, l]) => (
+              <button key={v} className={"filter-btn" + (range === v ? " active" : "")} onClick={() => setRange(v as any)}>
+                {l}
+              </button>
+            ))}
+          </div>
+          <PriceChart
+            data={{
+              ticker: price.data.ticker,
+              dates: price.data.dates.slice(-Math.ceil((range === "3m" ? 13 : range === "6m" ? 26 : 52))),
+              values: price.data.values.slice(-Math.ceil(range === "3m" ? 13 : range === "6m" ? 26 : 52)),
+            }}
+          />
+        </>
+      )}
 
       <div className="signal-count">
         {txs.data?.total ?? 0} giao dịch nội bộ · {txs.data?.items.length ?? 0} hiển thị

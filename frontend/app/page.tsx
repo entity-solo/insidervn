@@ -26,9 +26,10 @@ const ROLES = [
 export default function FeedPage() {
   const [type, setType] = useState("all");
   const [role, setRole] = useState("all");
+  const [period, setPeriod] = useState("all");
   const [selected, setSelected] = useState<Transaction | null>(null);
 
-  const params: TxParams = { type, role, dir: "desc", page_size: 60 };
+  const params: TxParams = { type, role, period, dir: "desc", page_size: 60 };
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteQuery({
     queryKey: ["tx", params],
     queryFn: ({ pageParam = 1 }) => api.transactions({ ...params, page: pageParam }),
@@ -123,6 +124,16 @@ export default function FeedPage() {
             <div className="filters">
               {ROLES.map(([v, l]) => (
                 <button key={v} className={"filter-btn" + (role === v ? " active" : "")} onClick={() => setRole(v)}>
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="filter-group">
+            <span className="filter-label">Thời gian</span>
+            <div className="filters">
+              {[["all", "Mời nhất"], ["7", "7 ngày"], ["30", "30 ngày"], ["90", "90 ngày"]].map(([v, l]) => (
+                <button key={v} className={"filter-btn" + (period === v ? " active" : "")} onClick={() => setPeriod(v)}>
                   {l}
                 </button>
               ))}

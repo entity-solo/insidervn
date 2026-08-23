@@ -15,10 +15,17 @@ const FILTERS = [
 
 export default function WinratePage() {
   const [filter, setFilter] = useState("all");
+  const [nameQ, setNameQ] = useState("");
+  const [minTrades, setMinTrades] = useState(false);
   const q = useQuery({
     queryKey: ["winrate", filter],
     queryFn: () => api.winrates(filter),
   });
+
+  const rows = (q.data ?? [])
+    .filter((w) => !nameQ.trim() || w.person.toLowerCase().includes(nameQ.trim().toLowerCase()))
+    .filter((w) => !minTrades || w.total_trades >= 20);
+  const tone = (i: number) => (i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : undefined);
 
   return (
     <div className="panel">
@@ -35,10 +42,28 @@ export default function WinratePage() {
               {l}
             </button>
           ))}
+          <button
+            className={"filter-btn" + (minTrades ? " active" : "")}
+            onClick={() => setMinTrades((m) => !m)}
+            title="Chỉ hiện insider có từ 20 giao dịch trở lên"
+          >
+            ≥20 GD
+          </button>
+        </div>
+        <div className="search-box" style={{ maxWidth: 260 }}>
+          <span style={{ color: "var(--muted)" }}>🔍</span>
+          <input
+            placeholder="Tìm trong bảng xếp hạng…"
+            value={nameQ}
+            onChange={(e) => setNameQ(e.target.value)}
+            aria-label="Tìm insider"
+          />
         </div>
       </div>
 
-      <div className="signal-count">Hiển thị {q.data?.length ?? 0} insiders (tối đa 200)</div>
+      <div className="signal-count">
+        Hiển thị {rows.length} / {q.data?.length ?? 0} insiders
+      </div>
       {q.isLoading && (
         <>
           <div className="skeleton" />
@@ -51,8 +76,11 @@ export default function WinratePage() {
           <button className="btn" onClick={() => q.refetch()}>Thử lại</button>
         </div>
       )}
-      {q.data?.map((w, i) => (
-        <WinrateRow key={w.person} w={w} rank={i + 1} />
+      {!q.isLoading && !q.isError && rows.length === 0 && (
+        <div className="empty">Không có insider nào khớp.</div>
+      )}
+      {rows.map((w, i) => (
+        <WinrateRow key={w.person} w={w} rank={i + 1} tone={tone(i)} />
       ))}
     </div>
   );
