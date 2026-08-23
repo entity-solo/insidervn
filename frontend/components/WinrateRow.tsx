@@ -18,7 +18,7 @@ export default function WinrateRow({
   return (
     <Link
       href={`/person/${encodeURIComponent(w.person)}`}
-      className={"wr-item" + (tone ? ` tone-${tone}` : "")}
+      className={"wr-item " + (isWin ? "dir-win" : "dir-lose") + (tone ? ` tone-${tone}` : "")}
       style={{ display: "block" }}
     >
       <div className="medal">{medal}</div>
