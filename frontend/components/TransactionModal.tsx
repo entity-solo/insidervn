@@ -79,6 +79,12 @@ export default function TransactionModal({ tx, onClose }: { tx: Transaction; onC
           <Row k={isPending ? "KL đăng ký" : "Khối lượng"} v={fmtNum(volume) + " cp"} />
           <Row k="Giá" v={fmtPrice(t.p_from)} />
           <Row k="Ngày GD" v={fmtDate(t.date_from || t.date_reg)} />
+          {t.date_to && t.date_to !== (t.date_from || t.date_reg) && (
+            <Row k="Kỳ hiệu lực" v={`${fmtDate(t.date_from || t.date_reg)} → ${fmtDate(t.date_to)}`} />
+          )}
+          {t.date_reg && t.date_from && t.date_reg !== t.date_from && (
+            <Row k="Ngày ĐK" v={fmtDate(t.date_reg)} />
+          )}
           <Row k="KL trước" v={fmtNum(t.vol_before)} />
           <Row k="KL sau" v={fmtNum(t.vol_after)} />
           {(t.own_before != null || t.own_after != null) && (
