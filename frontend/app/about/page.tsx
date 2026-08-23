@@ -8,11 +8,11 @@ export const metadata: Metadata = {
 };
 
 const SIGNALS: [string, string, string][] = [
-  ["🔥 Mua rổ", "Từ 2 insider trở lên cùng mua một mã trong 14 ngày", "Nhiều người am hiểu cùng công tiền — tín hiệu mạnh nhất"],
+  ["🔥 Mua rổ", "Từ 2 insider trở lên cùng mua một mã trong 14 ngày", "Những người hiểu rõ công ty nhất cùng đặt cược — tín hiệu mạnh nhất"],
   ["📉 Mua khi giảm", "Mua sau khi giá đã giảm ≥5% trong 28 ngày", "Người trong cuộc đón đáy khi giá rẻ"],
   ["🔻 Bán rổ", "Từ 2 insider trở lên cùng bán một mã trong 14 ngày", "Cảnh báo đồng loạt rút tiền"],
   ["📈 Bán khi tăng", "Bán sau khi giá đã tăng ≥5% trong 4 tuần", "Chốt lời khi giá cao"],
-  ["💰 Mua lớn", "Lệnh mua có khối lượng thực hiện lớn nhất", "Tiền của chính họ đặt vào — độ cam kết cao"],
+  ["💰 Mua lớn", "Lệnh mua có khối lượng thực hiện lớn nhất", "Cam kết bằng tiền của chính họ — mức độ tin cao"],
   ["🏦 Cổ phiếu quỹ", "Công ty mua lại cổ phiếu của chính mình", "Doanh nghiệp tin định giá đang thấp"],
 ];
 

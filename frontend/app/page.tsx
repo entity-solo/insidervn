@@ -101,7 +101,7 @@ export default function FeedPage() {
               <div className={"dash-hero-num " + (netVol >= 0 ? "pos" : "neg")}>
                 {netVol >= 0 ? "+" : "−"}{fmtShort(Math.abs(netVol))}
               </div>
-              <div className="dash-hero-sub">KL ròng (cp)</div>
+              <div className="dash-hero-sub">Khối lượng ròng (cổ phiếu)</div>
             </div>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function FeedPage() {
           <div className="filter-group">
             <span className="filter-label">Thời gian</span>
             <div className="filters">
-              {[["all", "Mời nhất"], ["7", "7 ngày"], ["30", "30 ngày"], ["90", "90 ngày"]].map(([v, l]) => (
+              {[["all", "Mới nhất"], ["7", "7 ngày"], ["30", "30 ngày"], ["90", "90 ngày"]].map(([v, l]) => (
                 <button key={v} className={"filter-btn" + (period === v ? " active" : "")} onClick={() => setPeriod(v)}>
                   {l}
                 </button>
