@@ -42,7 +42,20 @@ def list_winrate(
             q = q.filter(Winrate.wr < 50)
         elif filter == "volume":
             q = q.filter(func.abs(Winrate.total) >= 10_000_000_000)
-        q = q.order_by(Winrate.wr.desc(), Winrate.total.desc())
+
+        # Ranking order per intent:
+        # - winner/all: Bayesian-smoothed win rate so a lucky single trade
+        #   cannot outrank a proven record (shrunk toward 50%).
+        # - loser: worst performers first.
+        # - volume: biggest money moved first.
+        if filter == "loser":
+            q = q.order_by(Winrate.wr.asc(), Winrate.total.asc())
+        elif filter == "volume":
+            q = q.order_by(func.abs(Winrate.total).desc(), Winrate.wr.desc())
+        else:
+            score = ((Winrate.wins + 5.0) / (Winrate.total_trades + 10.0)) * 100.0
+            q = q.order_by(score.desc(), Winrate.wr.desc(), Winrate.total_trades.desc())
+
         rows = q.limit(limit).all()
         return [
             WinrateOut(

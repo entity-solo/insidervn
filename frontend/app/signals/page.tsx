@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -170,7 +170,7 @@ export default function SignalsPage() {
           ))}
         </div>
         <div className="filter-group">
-          <span className="filter-label">Cửm</span>
+          <span className="filter-label">Cửa sổ cụm</span>
           <div className="filters">
             {[14, 30].map((d) => (
               <button key={d} className={"filter-btn" + (winDays === d ? " active" : "")} onClick={() => setWinDays(d)}>
