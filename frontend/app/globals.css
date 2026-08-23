@@ -228,7 +228,7 @@ select.filter-select { background: var(--surface-2); border: 1px solid var(--bor
 .wr-rank-num { font-weight: 800; font-size: 16px; }
 
 /* Watchlist */
-.wl-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+.wl-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 16px 0; }
 .wl-stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: center; }
 .wl-stat-value { font-size: 22px; font-weight: 800; }
 .wl-stat-label { color: var(--muted); font-size: 12px; }
@@ -319,7 +319,7 @@ select.filter-select { background: var(--surface-2); border: 1px solid var(--bor
 @media (max-width: 720px) {
   .bottom-nav {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     position: fixed;
     bottom: 0; left: 0; right: 0;
     z-index: 60;

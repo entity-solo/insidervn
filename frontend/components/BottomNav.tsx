@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 
 const TABS = [
   ["/", "Bảng tin", "📋"],
-  ["/discover", "Khám phá", "🧭"],
+  ["/signals", "Tín hiệu", "🧭"],
+  ["/winrate", "Xếp hạng", "🏆"],
   ["/stock", "Tra cứu", "🔎"],
   ["/watchlist", "Theo dõi", "⭐"],
 ];

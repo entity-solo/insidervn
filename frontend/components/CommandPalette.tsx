@@ -14,7 +14,8 @@ interface CmdItem {
 
 const NAV: CmdItem[] = [
   { label: "Bảng tin", href: "/", icon: "📋" },
-  { label: "Khám phá", href: "/discover", icon: "🧭" },
+  { label: "Tín hiệu", href: "/signals", icon: "🧭" },
+  { label: "Xếp hạng", href: "/winrate", icon: "🏆" },
   { label: "Tra cứu", href: "/stock", icon: "🔎" },
   { label: "Theo dõi", href: "/watchlist", icon: "⭐" },
   { label: "Giới thiệu", href: "/about", icon: "💡" },
