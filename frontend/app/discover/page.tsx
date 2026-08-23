@@ -236,7 +236,9 @@ export default function DiscoverPage() {
         ))}
       </div>
 
-      <div className="section-label" style={{ marginTop: 14 }}>Tín hiệu</div>
+      <WinrateBlock />
+
+      <div className="section-label" style={{ marginTop: 26 }}>Tín hiệu</div>
 
       <ClusterBlock
         id="mua-ro" icon="🔥" title="Mua rổ" side="buy"
@@ -276,7 +278,6 @@ export default function DiscoverPage() {
         render={(tx, select) => <TransactionRow key={tx.id} tx={tx} onClick={() => select(tx)} />}
       />
 
-      <WinrateBlock />
     </div>
   );
 }
