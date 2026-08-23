@@ -205,7 +205,9 @@ select.filter-select { background: var(--surface-2); border: 1px solid var(--bor
 
 /* Cluster / signal cards */
 .section-label { font-size: 13px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--accent); margin-top: 26px; margin-bottom: 2px; }
-.signal-section { margin-top: 14px; }
+.signal-section { margin-top: 14px; scroll-margin-top: 76px; }
+.block-count { display: inline-block; margin-left: 8px; font-size: 12px; font-weight: 700; color: var(--accent); background: rgba(79,140,255,0.12); border-radius: 999px; padding: 1px 9px; vertical-align: middle; }
+.jump-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; position: sticky; top: 60px; z-index: 15; background: rgba(10,12,16,0.94); backdrop-filter: blur(8px); padding: 8px 0; }
 .signal-section-title { font-weight: 700; margin-bottom: 8px; color: var(--text); }
 .cluster-card, .dip-card, .hl-row {
   background: var(--surface);

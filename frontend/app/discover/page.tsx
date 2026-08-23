@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { api } from "@/lib/api";
@@ -11,45 +11,21 @@ import TransactionRow from "@/components/TransactionRow";
 import TransactionModal from "@/components/TransactionModal";
 import WinrateRow from "@/components/WinrateRow";
 
-function SignalBlock({
-  icon,
-  title,
-  desc,
-  items,
-  isLoading,
-  preview = 5,
-  renderItem,
-}: {
-  icon: string;
-  title: string;
-  desc: string;
-  items: any[];
-  isLoading: boolean;
-  preview?: number;
-  renderItem: (item: any, index: number) => ReactNode;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const shown = expanded ? items : items.slice(0, preview);
-  const hasMore = items.length > preview;
-  return (
-    <section className="signal-section">
-      <div className="signal-section-title">
-        {icon} {title}
-      </div>
-      <div className="signal-count">{desc}</div>
-      {isLoading && <div className="skeleton" />}
-      <div className="tx-list">
-        {shown.map((it, i) => renderItem(it, i))}
-      </div>
-      {hasMore && (
-        <div style={{ marginTop: 10 }}>
-          <button className="filter-btn" onClick={() => setExpanded((e) => !e)}>
-            {expanded ? "Thu gọn" : `Xem thêm (${items.length - preview})`}
-          </button>
-        </div>
-      )}
-    </section>
-  );
+// ---------- helpers ----------
+function useInView<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || inView) return;
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && setInView(true)),
+      { rootMargin: "400px 0px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [inView]);
+  return { ref, inView };
 }
 
 function RallyRow({ tx }: { tx: Transaction }) {
@@ -77,139 +53,230 @@ function RallyRow({ tx }: { tx: Transaction }) {
   );
 }
 
-export default function DiscoverPage() {
-  const [wrFilter, setWrFilter] = useState("all");
-  const [selected, setSelected] = useState<Transaction | null>(null);
-
-  const clusterBuy = useQuery({
-    queryKey: ["clusters", "buy", 14],
-    queryFn: () => api.clusters(14, "all", "buy", 100),
-  });
-  const clusterSell = useQuery({
-    queryKey: ["clusters", "sell", 14],
-    queryFn: () => api.clusters(14, "all", "sell", 100),
-  });
-  const dip = useQuery({ queryKey: ["dip"], queryFn: () => api.dip() });
-  const rally = useQuery({ queryKey: ["rally"], queryFn: () => api.rally() });
-  const largestBuy = useQuery({ queryKey: ["largest", "buy"], queryFn: () => api.largest("buy") });
-  const treasury = useQuery({ queryKey: ["treasury"], queryFn: () => api.treasury() });
-  const wr = useQuery({
-    queryKey: ["winrate", wrFilter],
-    queryFn: () => api.winrates(wrFilter),
-  });
-
+// ---------- generic block shell ----------
+function BlockShell({
+  id,
+  icon,
+  title,
+  desc,
+  count,
+  isLoading,
+  isError,
+  refetch,
+  inView,
+  items,
+  preview = 5,
+  renderItem,
+}: {
+  id: string;
+  icon: string;
+  title: string;
+  desc: string;
+  count?: number;
+  isLoading: boolean;
+  isError: boolean;
+  refetch: () => void;
+  inView: boolean;
+  items: any[];
+  preview?: number;
+  renderItem: (item: any, index: number) => ReactNode;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const shown = expanded ? items : items.slice(0, preview);
+  const hasMore = items.length > preview;
   return (
-    <div className="panel">
-      <div>
-        <div className="eyebrow">Khám phá</div>
-        <div className="feed-title">Tín hiệu & xếp hạng</div>
+    <section className="signal-section" id={id}>
+      <div className="signal-section-title">
+        {icon} {title}
+        {count != null && <span className="block-count">{count.toLocaleString("vi-VN")}</span>}
       </div>
+      <div className="signal-count">{desc}</div>
+      {!inView && !isLoading ? null : isLoading ? (
+        <>
+          <div className="skeleton" />
+          <div className="skeleton" />
+        </>
+      ) : isError ? (
+        <div className="empty-card">
+          <div>Không tải được khu này.</div>
+          <button className="btn" onClick={() => refetch()}>Thử lại</button>
+        </div>
+      ) : (
+        <>
+          <div className="tx-list">{shown.map((it, i) => renderItem(it, i))}</div>
+          {hasMore && (
+            <div style={{ marginTop: 10 }}>
+              <button className="filter-btn" onClick={() => setExpanded((e) => !e)}>
+                {expanded ? "Thu gọn" : `Xem thêm (${items.length - preview})`}
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
 
-      <div className="section-label">Tín hiệu</div>
-
-      <SignalBlock
-        icon="🔥"
-        title="Mua rổ"
-        desc="Nhóm từ 2 insider/người liên quan trở lên cùng mua một mã trong 14 ngày"
-        items={clusterBuy.data ?? []}
-        isLoading={clusterBuy.isLoading}
-        renderItem={(c, i) => (
-          <ClusterCard key={`${c.ticker}-${c.start}-${i}`} c={c} side="buy" />
-        )}
+// ---------- per-signal sections (own queries, lazy) ----------
+function ClusterBlock({ id, icon, title, side, desc }: { id: string; icon: string; title: string; side: "buy" | "sell"; desc: string }) {
+  const { ref, inView } = useInView<HTMLDivElement>();
+  const q = useQuery({
+    queryKey: ["clusters", side],
+    queryFn: () => api.clusters(14, "all", side, 100),
+    enabled: inView,
+  });
+  return (
+    <div ref={ref}>
+      <BlockShell
+        id={id} icon={icon} title={title} desc={desc}
+        count={q.data?.length} isLoading={q.isLoading} isError={q.isError}
+        refetch={() => q.refetch()} inView={inView} items={q.data ?? []}
+        renderItem={(c, i) => <ClusterCard key={`${c.ticker}-${c.start}-${i}`} c={c} side={side} />}
       />
+    </div>
+  );
+}
 
-      <SignalBlock
-        icon="📉"
-        title="Mua khi giảm"
-        desc="Lượt mua diễn ra sau khi giá đã giảm ≥5% trước ngày giao dịch"
-        items={dip.data ?? []}
-        isLoading={dip.isLoading}
-        renderItem={(tx) => (
-          <TransactionRow
-            key={tx.id}
-            tx={tx}
-            onClick={() => {
-              setSelected(tx);
-            }}
-          />
-        )}
+function TxBlock({
+  id, icon, title, desc, queryKey, queryFn, render,
+}: {
+  id: string; icon: string; title: string; desc: string;
+  queryKey: any[]; queryFn: () => Promise<Transaction[]>;
+  render: (tx: Transaction, select: (t: Transaction) => void) => ReactNode;
+}) {
+  const { ref, inView } = useInView<HTMLDivElement>();
+  const q = useQuery({ queryKey, queryFn, enabled: inView });
+  const [selected, setSelected] = useState<Transaction | null>(null);
+  return (
+    <div ref={ref}>
+      <BlockShell
+        id={id} icon={icon} title={title} desc={desc}
+        count={q.data?.length} isLoading={q.isLoading} isError={q.isError}
+        refetch={() => q.refetch()} inView={inView} items={q.data ?? []}
+        renderItem={(tx) => render(tx, setSelected)}
       />
+      {selected && <TransactionModal tx={selected} onClose={() => setSelected(null)} />}
+    </div>
+  );
+}
 
-      <SignalBlock
-        icon="🔻"
-        title="Bán rổ"
-        desc="Nhóm từ 2 insider/người liên quan trở lên cùng bán một mã trong 14 ngày"
-        items={clusterSell.data ?? []}
-        isLoading={clusterSell.isLoading}
-        renderItem={(c, i) => (
-          <ClusterCard key={`${c.ticker}-${c.start}-${i}`} c={c} side="sell" />
-        )}
-      />
-
-      <SignalBlock
-        icon="📈"
-        title="Bán khi tăng"
-        desc="Lượt bán diễn ra sau khi giá đã tăng ≥5% (4 tuần trước ngày giao dịch)"
-        items={rally.data ?? []}
-        isLoading={rally.isLoading}
-        renderItem={(tx) => <RallyRow key={tx.id} tx={tx} />}
-      />
-
-      <SignalBlock
-        icon="💰"
-        title="Mua lớn"
-        desc="Các lệnh mua có khối lượng thực hiện lớn nhất"
-        items={largestBuy.data ?? []}
-        isLoading={largestBuy.isLoading}
-        renderItem={(tx) => (
-          <TransactionRow
-            key={tx.id}
-            tx={tx}
-            onClick={() => {
-              setSelected(tx);
-            }}
-          />
-        )}
-      />
-
-      <SignalBlock
-        icon="🏦"
-        title="Cổ phiếu quỹ"
-        desc="Giao dịch công ty mua lại cổ phiếu quỹ"
-        items={treasury.data ?? []}
-        isLoading={treasury.isLoading}
-        renderItem={(tx) => (
-          <TransactionRow
-            key={tx.id}
-            tx={tx}
-            onClick={() => {
-              setSelected(tx);
-            }}
-          />
-        )}
-      />
-
+function WinrateBlock() {
+  const { ref, inView } = useInView<HTMLDivElement>();
+  const [filter, setFilter] = useState("all");
+  const q = useQuery({
+    queryKey: ["winrate", filter],
+    queryFn: () => api.winrates(filter),
+    enabled: inView,
+  });
+  return (
+    <div ref={ref} id="xep-hang">
       <div className="section-label">Xếp hạng</div>
-
-      <div className="filters" style={{ marginTop: 4 }}>
+      <div className="filters" style={{ marginTop: 6 }}>
         {[
           ["all", "Tất cả"],
           ["winner", "Top thắng"],
           ["loser", "Top thua"],
           ["volume", "KL lớn"],
         ].map(([v, l]) => (
-          <button key={v} className={"filter-btn" + (wrFilter === v ? " active" : "")} onClick={() => setWrFilter(v)}>
+          <button key={v} className={"filter-btn" + (filter === v ? " active" : "")} onClick={() => setFilter(v)}>
             {l}
           </button>
         ))}
       </div>
-      <div className="signal-count">Hiển thị {wr.data?.length ?? 0} insiders (tối đa 200)</div>
-      {wr.isLoading && <div className="skeleton" />}
-      {wr.data?.map((w, i) => (
+      <div className="signal-count">Hiển thị {q.data?.length ?? 0} insiders (tối đa 200)</div>
+      {q.isLoading && <div className="skeleton" />}
+      {q.isError && (
+        <div className="empty-card">
+          <div>Không tải được xếp hạng.</div>
+          <button className="btn" onClick={() => q.refetch()}>Thử lại</button>
+        </div>
+      )}
+      {q.data?.map((w, i) => (
         <WinrateRow key={w.person} w={w} rank={i + 1} />
       ))}
+    </div>
+  );
+}
 
-      {selected && <TransactionModal tx={selected} onClose={() => setSelected(null)} />}
+// ---------- page ----------
+const JUMPS: [string, string, string][] = [
+  ["mua-ro", "🔥", "Mua rổ"],
+  ["mua-khi-giam", "📉", "Mua khi giảm"],
+  ["ban-ro", "🔻", "Bán rổ"],
+  ["ban-khi-tang", "📈", "Bán khi tăng"],
+  ["mua-lon", "💰", "Mua lớn"],
+  ["co-phieu-quy", "🏦", "Cổ phiếu quỹ"],
+  ["xep-hang", "🏆", "Xếp hạng"],
+];
+
+export default function DiscoverPage() {
+  const jump = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  const rallyRender = useMemo(
+    () => (tx: Transaction, select: (t: Transaction) => void) => <RallyRow tx={tx} />,
+    []
+  );
+
+  return (
+    <div className="panel">
+      <div className="feed-head">
+        <div>
+          <div className="eyebrow">Khám phá</div>
+          <div className="feed-title">Tín hiệu & xếp hạng</div>
+          <div className="feed-subtitle">Sáu mẫu hình giao dịch nội bộ có ý nghĩa thống kê, cập nhật theo nguồn công bố.</div>
+        </div>
+      </div>
+
+      <div className="jump-row">
+        {JUMPS.map(([id, icon, label]) => (
+          <button key={id} className="filter-btn" onClick={() => jump(id)}>
+            {icon} {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="section-label" style={{ marginTop: 14 }}>Tín hiệu</div>
+
+      <ClusterBlock
+        id="mua-ro" icon="🔥" title="Mua rổ" side="buy"
+        desc="Nhóm từ 2 insider/người liên quan trở lên cùng mua một mã trong 14 ngày"
+      />
+
+      <TxBlock
+        id="mua-khi-giam" icon="📉" title="Mua khi giảm"
+        desc="Lượt mua diễn ra sau khi giá đã giảm ≥5% trước ngày giao dịch"
+        queryKey={["dip"]} queryFn={() => api.dip()}
+        render={(tx, select) => <TransactionRow key={tx.id} tx={tx} onClick={() => select(tx)} />}
+      />
+
+      <ClusterBlock
+        id="ban-ro" icon="🔻" title="Bán rổ" side="sell"
+        desc="Nhóm từ 2 insider/người liên quan trở lên cùng bán một mã trong 14 ngày"
+      />
+
+      <TxBlock
+        id="ban-khi-tang" icon="📈" title="Bán khi tăng"
+        desc="Lượt bán diễn ra sau khi giá đã tăng ≥5% (4 tuần trước ngày giao dịch)"
+        queryKey={["rally"]} queryFn={() => api.rally()}
+        render={rallyRender}
+      />
+
+      <TxBlock
+        id="mua-lon" icon="💰" title="Mua lớn"
+        desc="Các lệnh mua có khối lượng thực hiện lớn nhất"
+        queryKey={["largest", "buy"]} queryFn={() => api.largest("buy")}
+        render={(tx, select) => <TransactionRow key={tx.id} tx={tx} onClick={() => select(tx)} />}
+      />
+
+      <TxBlock
+        id="co-phieu-quy" icon="🏦" title="Cổ phiếu quỹ"
+        desc="Giao dịch công ty mua lại cổ phiếu quỹ"
+        queryKey={["treasury"]} queryFn={() => api.treasury()}
+        render={(tx, select) => <TransactionRow key={tx.id} tx={tx} onClick={() => select(tx)} />}
+      />
+
+      <WinrateBlock />
     </div>
   );
 }
