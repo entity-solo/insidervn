@@ -9,6 +9,7 @@ import type { Transaction } from "@/lib/types";
 import ClusterCard from "@/components/ClusterCard";
 import TransactionRow from "@/components/TransactionRow";
 import TransactionModal from "@/components/TransactionModal";
+import PageHeader from "@/components/PageHeader";
 
 function useInView<T extends HTMLElement>() {
   const ref = useRef<T | null>(null);
@@ -153,15 +154,13 @@ export default function SignalsPage() {
   );
   return (
     <div className="panel">
-      <div className="feed-head">
-        <div>
-          <div className="eyebrow">Tín hiệu</div>
-          <div className="feed-title">Tín hiệu giao dịch</div>
-          <div className="feed-subtitle">Sáu mẫu hình giao dịch nội bộ có ý nghĩa thống kê, cập nhật theo nguồn công bố.</div>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Tín hiệu"
+        title="Tín hiệu giao dịch"
+        sub="Sáu mẫu hình giao dịch nội bộ có ý nghĩa thống kê, cập nhật theo nguồn công bố."
+      />
 
-      <div className="jump-row">
+      <div className="feed-toolbar" style={{ marginTop: 12 }}>
         {JUMPS.map(([label, id]) => (
           <button key={id} className="filter-btn" onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })}>
             {label}

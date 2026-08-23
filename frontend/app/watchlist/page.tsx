@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { useWatchlist } from "@/store/watchlist";
 import TransactionRow from "@/components/TransactionRow";
 import TransactionModal from "@/components/TransactionModal";
+import PageHeader from "@/components/PageHeader";
 import type { Transaction } from "@/lib/types";
 
 export default function WatchlistPage() {
@@ -24,76 +25,78 @@ export default function WatchlistPage() {
     enabled: tickers.length + persons.length > 0,
   });
 
+  const empty = tickers.length === 0 && persons.length === 0;
+
   return (
     <div className="panel">
-      <div>
-        <div className="eyebrow">Cá nhân</div>
-        <div className="feed-title">Theo dõi</div>
-        <div className="feed-subtitle">Theo dõi lãnh đạo và mã CP bạn quan tâm</div>
-      </div>
+      <PageHeader
+        eyebrow="Cá nhân"
+        title="Theo dõi"
+        sub="Danh sách lãnh đạo và mã cổ phiếu bạn quan tâm — đăng nhập để đồng bộ giữa các thiết bị."
+      />
 
-      <div className="wl-stats">
-        <div className="wl-stat-card">
-          <div>
-            <div className="wl-stat-value">{persons.length}</div>
-            <div className="wl-stat-label">Người</div>
+      {!empty && (
+        <div className="kpi-row" style={{ marginTop: 14 }}>
+          <div className="kpi-card">
+            <div className="kpi-label">Người</div>
+            <div className="kpi-value">{persons.length}</div>
+          </div>
+          <div className="kpi-card">
+            <div className="kpi-label">Mã CP</div>
+            <div className="kpi-value">{tickers.length}</div>
+          </div>
+          <div className="kpi-card">
+            <div className="kpi-label">Giao dịch gần đây</div>
+            <div className="kpi-value">{trades?.length ?? 0}</div>
           </div>
         </div>
-        <div className="wl-stat-card">
-          <div>
-            <div className="wl-stat-value">{tickers.length}</div>
-            <div className="wl-stat-label">Mã CP</div>
-          </div>
+      )}
+
+      {empty ? (
+        <div className="empty-card">
+          <div>Chưa theo dõi ai cả.</div>
+          <div className="tx-company">Vào Tra cứu hoặc Tín hiệu, bấm "+ Theo dõi" trên mã/người bạn quan tâm.</div>
         </div>
-        <div className="wl-stat-card">
-          <div>
-            <div className="wl-stat-value">{trades?.length ?? 0}</div>
-            <div className="wl-stat-label">Giao dịch</div>
-          </div>
-        </div>
-        <div className="wl-stat-card">
-          <div>
-            <div className="wl-stat-value" style={{ color: "var(--accent)" }}>
-              Live
+      ) : (
+        <>
+          {tickers.length > 0 && (
+            <div className="signal-section">
+              <div className="signal-section-title">Mã CP đang theo dõi</div>
+              <div>
+                {tickers.map((t) => (
+                  <button key={t} className="filter-btn" style={{ marginRight: 6 }} onClick={() => removeTicker(t)} title="Bỏ theo dõi">
+                    🏷️ {t} ✕
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="wl-stat-label">Nguồn</div>
+          )}
+
+          {persons.length > 0 && (
+            <div className="signal-section">
+              <div className="signal-section-title">Lãnh đạo đang theo dõi</div>
+              <div>
+                {persons.map((p) => (
+                  <button key={p} className="filter-btn" style={{ marginRight: 6 }} onClick={() => removePerson(p)} title="Bỏ theo dõi">
+                    👤 {p} ✕
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="signal-section">
+            <div className="signal-section-title">Giao dịch gần đây</div>
+            {isLoading && <div className="skeleton" />}
+            <div className="tx-list">
+              {(trades ?? []).map((tx) => (
+                <TransactionRow key={tx.id} tx={tx} onClick={() => setSelected(tx)} />
+              ))}
+              {!isLoading && (trades?.length ?? 0) === 0 && <div className="empty">Chưa có giao dịch</div>}
+            </div>
           </div>
-        </div>
-      </div>
-
-      <div className="signal-section">
-        <div className="signal-section-title">Mã CP đang theo dõi</div>
-        {tickers.length === 0 && <div className="tx-company">Chưa có</div>}
-        <div>
-          {tickers.map((t) => (
-            <button key={t} className="chip" style={{ cursor: "pointer" }} onClick={() => removeTicker(t)} title="Xoá">
-              {t} ✕
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="signal-section">
-        <div className="signal-section-title">Lãnh đạo đang theo dõi</div>
-        {persons.length === 0 && <div className="tx-company">Chưa có</div>}
-        <div>
-          {persons.map((p) => (
-            <button key={p} className="chip" style={{ cursor: "pointer" }} onClick={() => removePerson(p)} title="Xoá">
-              {p} ✕
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="signal-section">
-        <div className="signal-section-title">Giao dịch gần đây</div>
-        {isLoading && <div className="skeleton" />}
-        <div className="tx-list">
-          {(trades ?? []).map((tx) => (
-            <TransactionRow key={tx.id} tx={tx} onClick={() => setSelected(tx)} />
-          ))}
-          {!isLoading && (trades?.length ?? 0) === 0 && <div className="empty">Chưa có giao dịch</div>}
-        </div>
-      </div>
+        </>
+      )}
 
       {selected && <TransactionModal tx={selected} onClose={() => setSelected(null)} />}
     </div>

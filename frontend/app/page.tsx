@@ -7,6 +7,7 @@ import type { TxParams } from "@/lib/api";
 import type { Transaction } from "@/lib/types";
 import TransactionRow from "@/components/TransactionRow";
 import TransactionModal from "@/components/TransactionModal";
+import PageHeader from "@/components/PageHeader";
 
 const TYPES = [
   ["all", "Tất cả"],
@@ -65,19 +66,20 @@ export default function FeedPage() {
 
   return (
     <div className="panel">
-      <div className="feed-head">
-        <div>
-          <div className="feed-title">Giao dịch nội bộ</div>
-          <div className="feed-subtitle">Theo dõi giao dịch mua/bán cổ phiếu của lãnh đạo, HĐQT & cổ đông lớn — cập nhật từ công bố chính thức.</div>
-        </div>
-        {metaInfo.data?.last_crawl_at && (
-          <div className="feed-updated" title="Ngày hệ thống quét nguồn lần cuối">
-            <span className={"feed-updated-dot" + (metaInfo.data?.last_crawl_ok === "0" ? " err" : "")} />
-            Dữ liệu đến {new Date(metaInfo.data.last_crawl_at).toLocaleDateString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}
-            {metaInfo.data?.last_crawl_ok === "1" ? "" : " (lỗi)"}
-          </div>
-        )}
-      </div>
+      <PageHeader
+        eyebrow="Bảng tin"
+        title="Giao dịch nội bộ"
+        sub="Mua/bán cổ phiếu của lãnh đạo, HĐQT & cổ đông lớn — theo công bố chính thức."
+        right={
+          metaInfo.data?.last_crawl_at ? (
+            <div className="feed-updated" title="Ngày hệ thống quét nguồn lần cuối">
+              <span className={"feed-updated-dot" + (metaInfo.data?.last_crawl_ok === "0" ? " err" : "")} />
+              Dữ liệu đến {new Date(metaInfo.data.last_crawl_at).toLocaleDateString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}
+              {metaInfo.data?.last_crawl_ok === "1" ? "" : " (lỗi)"}
+            </div>
+          ) : undefined
+        }
+      />
 
       {!isLoading && recent.length > 0 && (
         <div className="feed-stats">

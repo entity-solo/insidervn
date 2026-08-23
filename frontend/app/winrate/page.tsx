@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import WinrateRow from "@/components/WinrateRow";
+import PageHeader from "@/components/PageHeader";
 
 const FILTERS = [
   ["all", "Tất cả"],
@@ -21,15 +22,11 @@ export default function WinratePage() {
 
   return (
     <div className="panel">
-      <div className="feed-head">
-        <div>
-          <div className="eyebrow">Bảng vàng</div>
-          <div className="feed-title">Xếp hạng insider</div>
-          <div className="feed-subtitle">
-            Chấm điểm dựa trên hiệu suất giá cổ phiếu sau 1 tháng kể từ lần mua của họ.
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Bảng vàng"
+        title="Xếp hạng insider"
+        sub="Chấm điểm dựa trên hiệu suất giá cổ phiếu sau 1 tháng kể từ lần mua của họ."
+      />
 
       <div className="feed-toolbar">
         <div className="filters">
