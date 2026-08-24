@@ -283,7 +283,10 @@ select.filter-select { background: var(--surface-2); border: 1px solid var(--bor
 .signal-note.pos { background: var(--buy-soft); color: var(--buy); }
 
 /* Hero (ticker / person pages) */
-.ticker-hero { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; margin: 4px 0 6px; }
+.ticker-hero { display: flex; justify-content: space-between; align-items: center; gap: 16px 24px; flex-wrap: wrap; margin: 6px 0 12px; }
+.ticker-hero > div:first-child { min-width: 0; flex: 1 1 auto; }
+.ticker-hero .feed-subtitle,
+.ticker-hero .tx-company { padding-right: 8px; }
 
 .empty { text-align: center; color: var(--muted); padding: 40px 0; }
 .empty-card { background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); padding: 44px 20px; text-align: center; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 14px; }
