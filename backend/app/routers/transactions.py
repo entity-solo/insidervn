@@ -16,8 +16,15 @@ EXCHANGES = {"HOSE", "HNX", "UPCoM"}
 
 
 def get_max_date(db: Session) -> str:
-    m = db.query(func.max(Transaction.date_reg)).scalar()
-    return m or datetime.now().strftime("%Y-%m-%d")
+    # Anchor relative-time filters to the newest REAL disclosure; future-dated
+    # registrations (planned windows) must not push the cutoff into December.
+    today = datetime.now().strftime("%Y-%m-%d")
+    m = (
+        db.query(func.max(Transaction.date_reg))
+        .filter(Transaction.date_reg.isnot(None), Transaction.date_reg <= today)
+        .scalar()
+    )
+    return m or today
 
 
 def period_cutoff(period: str, anchor: str) -> str:

@@ -34,21 +34,27 @@ export default function PersonPage() {
     const items = txs.data?.items ?? [];
     let buyVol = 0,
       sellVol = 0,
-      buyVal = 0;
+      buyVal = 0,
+      buyCount = 0,
+      sellCount = 0;
     const roles = new Map<string, number>();
     const tickers = new Map<string, number>();
     for (const t of items) {
       const vol = (t.executed ?? 0) > 0 ? t.executed! : (t.shares ?? 0);
       if ((t.type || "").includes("buy")) {
+        buyCount += 1;
         buyVol += vol;
         if (t.p_from) buyVal += vol * t.p_from;
-      } else if ((t.type || "").includes("sell")) sellVol += vol;
+      } else if ((t.type || "").includes("sell")) {
+        sellCount += 1;
+        sellVol += vol;
+      }
       if (t.role) roles.set(t.role, (roles.get(t.role) || 0) + 1);
       if (t.ticker) tickers.set(t.ticker, (tickers.get(t.ticker) || 0) + 1);
     }
     const topRole = [...roles.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
     const topTickers = [...tickers.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map((e) => e[0]);
-    return { buyVol, sellVol, buyVal, topRole, topTickers };
+    return { buyVol, sellVol, buyVal, topRole, topTickers, buyCount, sellCount };
   }, [txs.data]);
 
   return (
@@ -77,7 +83,13 @@ export default function PersonPage() {
           >
             {found ? found.wr + "%" : "—"}
           </div>
-          <div className="kpi-sub">{found ? `${found.wins} thắng / ${found.losses} thua` : "chưa đủ dữ liệu"}</div>
+          <div className="kpi-sub">
+            {found
+              ? `${found.wins} thắng / ${found.losses} thua`
+              : stats.buyCount === 0 && stats.sellCount > 0
+                ? "chỉ có giao dịch bán — winrate tính cho lệnh mua"
+                : "chưa đủ dữ liệu"}
+          </div>
         </div>
         <div className="kpi-card">
           <div className="kpi-label">P/L trung bình</div>

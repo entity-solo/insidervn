@@ -163,7 +163,8 @@ def _week_dates():
 
 
 def build_weekly_series(hist: dict) -> tuple[list[str], dict[str, list]]:
-    week = _week_dates()
+    today = datetime.now().strftime("%Y-%m-%d")
+    week = [d for d in _week_dates() if d <= today]
     series: dict[str, list] = {}
     for tk, h in hist.items():
         sd = sorted(h.keys())
@@ -175,6 +176,11 @@ def build_weekly_series(hist: dict) -> tuple[list[str], dict[str, list]]:
             while idx < len(sd) - 1 and sd[idx + 1] <= wd:
                 idx += 1
             arr.append(h[sd[idx]] if sd[idx] <= wd else None)
+        # Do NOT forward-fill the last price into future weeks — the chart
+        # must stop at the last real close.
+        last_real = sd[-1]
+        cut = sum(1 for wd in week if wd <= last_real)
+        arr = arr[:cut]
         while arr and arr[-1] is None:
             arr.pop()
         series[tk] = arr
