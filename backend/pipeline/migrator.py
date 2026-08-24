@@ -278,6 +278,15 @@ def _to_row(rec, ticker_info, id_counter):
     }
 
 
+def _swap_reversed_dates(row: dict) -> dict:
+    """Enforce date_from <= date_to AFTER sanitize (year rewrites can re-create
+    a reversed window even if the raw pair was ordered)."""
+    df, dt = row.get("date_from") or "", row.get("date_to") or ""
+    if isinstance(df, str) and isinstance(dt, str) and df and dt and df > dt:
+        row["date_from"], row["date_to"] = dt, df
+    return row
+
+
 def migrate(raw_records: list[dict], ticker_info: dict | None = None) -> list[dict]:
     ticker_info = ticker_info if ticker_info is not None else load_ticker_info()
     out = []
@@ -288,7 +297,7 @@ def migrate(raw_records: list[dict], ticker_info: dict | None = None) -> list[di
         if row is None:
             skipped += 1
             continue
-        out.append(_sanitize_row(row))
+        out.append(_swap_reversed_dates(_sanitize_row(row)))
         id_counter += 1
     logger.info("Migrated %s records (skipped %s)", len(out), skipped)
     return out
@@ -376,7 +385,7 @@ def migrate_legacy(records: list[dict]) -> list[dict]:
             "vol_before": _as_int(rec.get("volBefore")),
             "vol_after": _as_int(rec.get("volAfter")),
         }
-        out.append(_sanitize_row(row))
+        out.append(_swap_reversed_dates(_sanitize_row(row)))
     logger.info("Migrated (legacy) %s records (skipped %s)", len(out), skipped)
     return out
 
