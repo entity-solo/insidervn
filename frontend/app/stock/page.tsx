@@ -41,11 +41,11 @@ function StockPageInner() {
       <PageHeader
         eyebrow="Tra cứu"
         title="Tra mã / người"
-        sub="Nhập mã (VD: VIC, FPT) hoặc tên lãnh đạo → xem biểu đồ & lịch sử giao dịch."
+        sub="Lịch sử giao dịch nội bộ theo mã cổ phiếu hoặc người — kèm biểu đồ giá."
       />
 
       <div className="feed-toolbar">
-        <div className="search-box">
+        <div className="search-box" style={{ margin: 0, maxWidth: "none", flex: 1 }}>
           <span style={{ color: "var(--muted)" }}>🔍</span>
           <input
             placeholder="VD: VIC, FPT hoặc tên lãnh đạo…"
@@ -108,8 +108,8 @@ function StockPageInner() {
       )}
 
       {!q.trim() && (
-        <div className="empty-card">
-          <div>Gõ để tìm theo mã cổ phiếu hoặc tên lãnh đạo.</div>
+        <div className="empty-card" style={{ padding: "30px 20px" }}>
+          <div>Gõ tên mã hoặc người vào ô trên để bắt đầu.</div>
           <div className="tx-company">Mẹo: nhấn Ctrl + K để tìm nhanh từ bất kỳ đâu.</div>
         </div>
       )}
