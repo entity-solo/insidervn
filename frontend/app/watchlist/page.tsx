@@ -63,7 +63,7 @@ export default function WatchlistPage() {
           {tickers.length > 0 && (
             <div className="signal-section">
               <div className="signal-section-title">Mã CP đang theo dõi</div>
-              <div>
+              <div style={{ marginTop: 10 }}>
                 {tickers.map((t) => (
                   <span key={t} className="wl-chip">
                     <Link href={`/stock/${t}`}>{t}</Link>
@@ -77,7 +77,7 @@ export default function WatchlistPage() {
           {persons.length > 0 && (
             <div className="signal-section">
               <div className="signal-section-title">Lãnh đạo đang theo dõi</div>
-              <div>
+              <div style={{ marginTop: 10 }}>
                 {persons.map((p) => (
                   <span key={p} className="wl-chip">
                     <Link href={`/person/${encodeURIComponent(p)}`}>{p}</Link>

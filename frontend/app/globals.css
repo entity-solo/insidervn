@@ -242,11 +242,11 @@ select.filter-select { background: var(--surface-2); border: 1px solid var(--bor
 .wr-item.tone-bronze { border-left-color: #cd7f32; }
 
 /* Watchlist chips (link + remove) */
-.wl-chip { display: inline-flex; align-items: center; gap: 2px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px 4px 3px 11px; margin: 3px 6px 3px 0; font-size: 13px; }
+.wl-chip { display: inline-flex; align-items: center; gap: 7px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 5px 5px 5px 13px; margin: 3px 8px 3px 0; font-size: 13px; line-height: 1.35; }
 .wl-chip a { font-weight: 600; color: var(--text); }
 .wl-chip a:hover { color: var(--accent); }
-.wl-chip button { border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; line-height: 1; padding: 2px 6px; border-radius: 999px; }
-.wl-chip button:hover { color: var(--sell); }
+.wl-chip button { border: none; background: var(--bg); color: var(--muted); cursor: pointer; font-size: 12px; line-height: 1; padding: 4px 7px; border-radius: 999px; transition: color 0.15s, background 0.15s; }
+.wl-chip button:hover { color: var(--sell); background: var(--sell-soft); }
 .medal { font-size: 22px; text-align: center; }
 .wr-rank-num { font-weight: 800; font-size: 16px; }
 
