@@ -40,8 +40,6 @@ def list_winrate(
             q = q.filter(Winrate.wr >= 50)
         elif filter == "loser":
             q = q.filter(Winrate.wr < 50)
-        elif filter == "volume":
-            q = q.filter(func.abs(Winrate.total) >= 10_000_000_000)
 
         # Ranking order per intent:
         # - winner/all: Bayesian-smoothed win rate so a lucky single trade

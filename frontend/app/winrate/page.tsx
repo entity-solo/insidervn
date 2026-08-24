@@ -7,10 +7,10 @@ import WinrateRow from "@/components/WinrateRow";
 import PageHeader from "@/components/PageHeader";
 
 const FILTERS = [
-  ["all", "Tất cả"],
-  ["winner", "Top thắng"],
-  ["loser", "Top thua"],
-  ["volume", "KL lớn"],
+  ["all", "Đáng tin cậy"],
+  ["winner", "WR cao nhất"],
+  ["loser", "WR thấp nhất"],
+  ["volume", "KL lớn nhất"],
 ];
 
 export default function WinratePage() {
@@ -36,12 +36,17 @@ export default function WinratePage() {
       />
 
       <div className="feed-toolbar">
+        <div className="filter-group">
+          <span className="filter-label">Xếp theo</span>
+          <div className="filters">
+            {FILTERS.map(([v, l]) => (
+              <button key={v} className={"filter-btn" + (filter === v ? " active" : "")} onClick={() => setFilter(v)}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="filters">
-          {FILTERS.map(([v, l]) => (
-            <button key={v} className={"filter-btn" + (filter === v ? " active" : "")} onClick={() => setFilter(v)}>
-              {l}
-            </button>
-          ))}
           <button
             className={"filter-btn" + (minTrades ? " active" : "")}
             onClick={() => setMinTrades((m) => !m)}
