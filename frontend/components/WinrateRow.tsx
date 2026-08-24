@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Winrate } from "@/lib/types";
-import { fmtNum } from "@/lib/format";
+import { fmtMoney } from "@/lib/format";
 
 export default function WinrateRow({
   w,
@@ -19,7 +19,6 @@ export default function WinrateRow({
     <Link
       href={`/person/${encodeURIComponent(w.person)}`}
       className={"wr-item " + (isWin ? "dir-win" : "dir-lose") + (tone ? ` tone-${tone}` : "")}
-      style={{ display: "block" }}
     >
       <div className="medal">{medal}</div>
       <div className="tx-main">
@@ -37,7 +36,7 @@ export default function WinrateRow({
           {w.pnl >= 0 ? "+" : ""}
           {w.pnl.toFixed(1)}%
         </div>
-        <div style={{ fontSize: 11, color: "var(--muted)" }}>{fmtNum(w.total)}</div>
+        <div style={{ fontSize: 11, color: "var(--muted)" }}>KL {fmtMoney(w.total)}</div>
       </div>
     </Link>
   );
