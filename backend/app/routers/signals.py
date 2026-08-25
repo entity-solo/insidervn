@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from ..cache import get_or_set
 from ..database import get_db
 from ..schemas import ClusterOut, HighlightsOut, TransactionOut
 from ..services import signals as signal_svc
@@ -16,7 +17,11 @@ def clusters(
     limit: int = Query(100, ge=1, le=300),
     db: Session = Depends(get_db),
 ):
-    return signal_svc.get_clusters(db, window_days=window, exchange=exchange, side=side, limit=limit)
+    def _build():
+        return [c.model_dump() for c in signal_svc.get_clusters(
+            db, window_days=window, exchange=exchange, side=side, limit=limit)]
+
+    return get_or_set(f"clusters|{window}|{exchange}|{side}|{limit}", _build, ttl=600)
 
 
 @router.get("/cluster-members", response_model=list[TransactionOut])
@@ -39,8 +44,11 @@ def dip(
     limit: int = Query(80, ge=1, le=200),
     db: Session = Depends(get_db),
 ):
-    rows = signal_svc.get_dip_buys(db, exchange=exchange, limit=limit)
-    return [TransactionOut.model_validate(r) for r in rows]
+    def _build():
+        return [TransactionOut.model_validate(r).model_dump()
+                for r in signal_svc.get_dip_buys(db, exchange=exchange, limit=limit)]
+
+    return get_or_set(f"dip|{exchange}|{limit}", _build, ttl=300)
 
 
 @router.get("/largest", response_model=list[TransactionOut])
@@ -51,8 +59,11 @@ def largest(
     days: int = Query(0, ge=0, le=3650),
     db: Session = Depends(get_db),
 ):
-    rows = signal_svc.get_largest(db, side=side, exchange=exchange, limit=limit, days=days)
-    return [TransactionOut.model_validate(r) for r in rows]
+    def _build():
+        return [TransactionOut.model_validate(r).model_dump()
+                for r in signal_svc.get_largest(db, side=side, exchange=exchange, limit=limit, days=days)]
+
+    return get_or_set(f"largest|{side}|{exchange}|{limit}|{days}", _build, ttl=300)
 
 
 @router.get("/treasury", response_model=list[TransactionOut])
@@ -61,8 +72,11 @@ def treasury(
     limit: int = Query(100, ge=1, le=300),
     db: Session = Depends(get_db),
 ):
-    rows = signal_svc.get_treasury(db, exchange=exchange, limit=limit)
-    return [TransactionOut.model_validate(r) for r in rows]
+    def _build():
+        return [TransactionOut.model_validate(r).model_dump()
+                for r in signal_svc.get_treasury(db, exchange=exchange, limit=limit)]
+
+    return get_or_set(f"treasury|{exchange}|{limit}", _build, ttl=300)
 
 
 @router.get("/rally", response_model=list[TransactionOut])
@@ -71,7 +85,10 @@ def rally(
     limit: int = Query(80, ge=1, le=200),
     db: Session = Depends(get_db),
 ):
-    return signal_svc.get_rally_sells(db, exchange=exchange, limit=limit)
+    def _build():
+        return [r.model_dump() for r in signal_svc.get_rally_sells(db, exchange=exchange, limit=limit)]
+
+    return get_or_set(f"rally|{exchange}|{limit}", _build, ttl=300)
 
 
 @router.get("/highlights", response_model=HighlightsOut)

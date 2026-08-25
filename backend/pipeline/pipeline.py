@@ -12,6 +12,12 @@ logger = logging.getLogger("pipeline")
 
 
 def _mark_crawl(ok: bool):
+    try:
+        from app.cache import invalidate_all
+
+        invalidate_all()
+    except Exception:
+        pass
     """Record the last crawl time so the UI can show real freshness."""
     try:
         from sqlalchemy import text

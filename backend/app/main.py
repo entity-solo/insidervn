@@ -18,6 +18,17 @@ async def lifespan(app: FastAPI):
     yield
 
 
+class ApiCacheHeaderMiddleware(BaseHTTPMiddleware):
+    """Let browsers reuse GET /api responses briefly (data refreshes on a
+    4-hour crawl cadence, so a minute of client caching is invisible)."""
+
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        if request.method == "GET" and request.url.path.startswith("/api/"):
+            response.headers["Cache-Control"] = "public, max-age=60, stale-while-revalidate=300"
+        return response
+
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, max_requests: int = RATE_LIMIT_MAX, window: int = RATE_LIMIT_WINDOW):
         super().__init__(app)
@@ -53,6 +64,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 app = FastAPI(title="InsiderVN API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(RateLimitMiddleware)
+app.add_middleware(ApiCacheHeaderMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
