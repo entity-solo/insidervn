@@ -34,9 +34,10 @@ def largest(
     side: str = Query("buy", pattern="^(buy|sell)$"),
     exchange: str = "all",
     limit: int = Query(80, ge=1, le=200),
+    days: int = Query(0, ge=0, le=3650),
     db: Session = Depends(get_db),
 ):
-    rows = signal_svc.get_largest(db, side=side, exchange=exchange, limit=limit)
+    rows = signal_svc.get_largest(db, side=side, exchange=exchange, limit=limit, days=days)
     return [TransactionOut.model_validate(r) for r in rows]
 
 

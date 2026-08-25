@@ -39,8 +39,8 @@ export const api = {
   clusters: (window: number, exchange = "all", side = "buy", limit = 100) =>
     get<Cluster[]>("/signals/clusters", { window, exchange, side, limit }),
   dip: (exchange = "all") => get<Transaction[]>("/signals/dip", { exchange }),
-  largest: (side: "buy" | "sell" = "buy", exchange = "all") =>
-    get<Transaction[]>("/signals/largest", { side, exchange }),
+  largest: (side: "buy" | "sell" = "buy", exchange = "all", days = 0) =>
+    get<Transaction[]>("/signals/largest", { side, exchange, days: days || undefined }),
   treasury: (exchange = "all") => get<Transaction[]>("/signals/treasury", { exchange }),
   rally: (exchange = "all") => get<Transaction[]>("/signals/rally", { exchange }),
   price: (ticker: string) => get<PriceSeries>(`/prices/${ticker}`),

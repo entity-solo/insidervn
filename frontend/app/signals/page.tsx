@@ -53,12 +53,13 @@ function RallyRow({ tx }: { tx: Transaction }) {
 }
 
 function BlockShell({
-  icon, title, desc, count, isLoading, isError, refetch, items, preview = 5, renderItem,
+  icon, title, desc, count, isLoading, isError, refetch, items, preview = 5, renderItem, extra,
 }: {
   icon: string; title: string; desc: string; count?: number;
   isLoading: boolean; isError: boolean; refetch: () => void;
   items: any[]; preview?: number;
   renderItem: (item: any, index: number) => ReactNode;
+  extra?: ReactNode;
 }) {
   const [expanded, setExpanded] = useState(false);
   const shown = expanded ? items : items.slice(0, preview);
@@ -69,7 +70,10 @@ function BlockShell({
         {icon} {title}
         {count != null && <span className="block-count">{count.toLocaleString("vi-VN")}</span>}
       </div>
-      <div className="signal-count">{desc}</div>
+      <div className="signal-count" style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+        <span>{desc}</span>
+        {extra}
+      </div>
       {isLoading ? (
         <>
           <div className="skeleton" />
@@ -116,11 +120,12 @@ function ClusterBlock({ id, icon, title, side, desc, window: winDays }: { id: st
 }
 
 function TxBlock({
-  id, icon, title, desc, queryKey, queryFn, render,
+  id, icon, title, desc, queryKey, queryFn, render, extra,
 }: {
   id: string; icon: string; title: string; desc: string;
   queryKey: any[]; queryFn: () => Promise<Transaction[]>;
   render: (tx: Transaction, select: (t: Transaction) => void) => ReactNode;
+  extra?: ReactNode;
 }) {
   const { ref, inView } = useInView<HTMLDivElement>();
   const q = useQuery({ queryKey, queryFn, enabled: inView });
@@ -132,6 +137,7 @@ function TxBlock({
         count={q.data?.length} isLoading={q.isLoading} isError={q.isError}
         refetch={() => q.refetch()} items={q.data ?? []}
         renderItem={(tx) => render(tx, setSelected)}
+        extra={extra}
       />
       {selected && <TransactionModal tx={selected} onClose={() => setSelected(null)} />}
     </div>
@@ -149,6 +155,7 @@ const JUMPS: [string, string][] = [
 
 export default function SignalsPage() {
   const [winDays, setWinDays] = useState(14);
+  const [largeDays, setLargeDays] = useState(90);
   const rallyRender = useMemo(
     () => (tx: Transaction, select: (t: Transaction) => void) => <RallyRow tx={tx} />,
     []
@@ -207,9 +214,21 @@ export default function SignalsPage() {
 
       <TxBlock
         id="mua-lon" icon="💰" title="Mua lớn"
-        desc="Các lệnh mua có khối lượng thực hiện lớn nhất"
-        queryKey={["largest", "buy"]} queryFn={() => api.largest("buy")}
+        desc={largeDays ? `Lệnh mua khối lượng lớn nhất trong ${largeDays === 90 ? "90 ngày" : "1 năm"} qua` : "Lệnh mua có khối lượng thực hiện lớn nhất mọi thời đại"}
+        queryKey={["largest", "buy", largeDays]} queryFn={() => api.largest("buy", "all", largeDays)}
         render={(tx, select) => <TransactionRow key={tx.id} tx={tx} onClick={() => select(tx)} />}
+        extra={
+          <div className="filter-group">
+            <span className="filter-label">Khoảng</span>
+            <div className="filters">
+              {[[90, "90 ngày"], [365, "1 năm"], [0, "Mọi thời đại"]].map(([d, l]) => (
+                <button key={d as number} className={"filter-btn" + (largeDays === d ? " active" : "")} onClick={() => setLargeDays(d as number)}>
+                  {l as string}
+                </button>
+              ))}
+            </div>
+          </div>
+        }
       />
 
       <TxBlock

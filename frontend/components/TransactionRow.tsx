@@ -37,12 +37,11 @@ export default function TransactionRow({ tx, onClick }: { tx: Transaction; onCli
        <div className="tx-ticker">{tx.ticker}</div>
       <div className="tx-main">
         <div className="tx-person">
-          {tx.person}{" "}
+          {[tx.person, tx.role].filter(Boolean).join(" · ") || "—"}
           {tx.person_type === "org" && <span className="tx-org">Tổ chức</span>}
-          <span style={{ color: "var(--muted)", fontWeight: 500 }}> · {tx.role}</span>
         </div>
         <div className="tx-company">
-          {tx.company} · {tx.exchange}
+          {[tx.company, tx.exchange].filter((x) => x && x !== tx.ticker).join(" · ")}
         </div>
       </div>
       <div>

@@ -134,10 +134,13 @@ def get_dip_buys(db: Session, exchange: str = "all", limit: int = 80) -> list[Tr
     return q.limit(limit).all()
 
 
-def get_largest(db: Session, side: str = "buy", exchange: str = "all", limit: int = 80) -> list[Transaction]:
+def get_largest(db: Session, side: str = "buy", exchange: str = "all", limit: int = 80, days: int = 0) -> list[Transaction]:
     q = db.query(Transaction).filter(Transaction.type == side, Transaction.executed != None)  # noqa: E711
     if exchange != "all":
         q = q.filter(Transaction.exchange == exchange)
+    if days and days > 0:
+        cutoff = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+        q = q.filter(func.coalesce(Transaction.date_from, Transaction.date_reg) >= cutoff)
     q = q.order_by(Transaction.executed.desc())
     return q.limit(limit).all()
 

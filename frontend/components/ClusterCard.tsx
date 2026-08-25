@@ -13,7 +13,9 @@ export default function ClusterCard({ c, side = "buy" }: { c: Cluster; side?: "b
           <span className="tx-ticker" style={{ fontSize: 18 }}>
             {c.ticker}
           </span>{" "}
-          <span style={{ color: "var(--muted)", fontSize: 13 }}>{c.company}</span>
+          {c.company && c.company !== c.ticker && (
+            <span style={{ color: "var(--muted)", fontSize: 13 }}>{c.company}</span>
+          )}
         </div>
         <span className={"tx-badge " + (isBuy ? "badge-buy" : "badge-sell")}>
           {isBuy ? "Mua rổ" : "Bán rổ"}
@@ -28,12 +30,12 @@ export default function ClusterCard({ c, side = "buy" }: { c: Cluster; side?: "b
         {c.persons.length > 8 && <span className="chip">+{c.persons.length - 8}</span>}
       </div>
       <div className="cluster-stats">
-        <span>{fmtDate(c.start)} – {fmtDate(c.end)}</span>
+        <span>{c.start === c.end ? fmtDate(c.start) : `${fmtDate(c.start)} – ${fmtDate(c.end)}`}</span>
         <span className={isBuy ? "pos" : "neg"}>
           {isBuy ? "+" : "−"}
           {fmtNum(c.total_shares)} cp
         </span>
-        <span>{c.count} insiders</span>
+        <span>{c.count} người</span>
       </div>
     </Link>
   );
