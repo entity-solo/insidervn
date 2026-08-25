@@ -152,6 +152,41 @@ def _classify_role(type_name: str, person: str, relationship: str, role_raw: str
     return (role_key_raw or "insider"), (role_raw or "Người nội bộ")
 
 
+_COMPANY_HINT_RE = re.compile(
+    r"công ty|ctcp|tnhh|t\u1ed5ng c\u00F4ng ty|ng\u00E2n h\u00E0ng|qu\u1EF9|t\u1EADp \u0111o\u00E0n|chi nh\u00E1nh",
+    re.I,
+)
+
+
+def _company_from_content(content: str) -> str:
+    """Disclosure bodies usually open with the issuer's full name, e.g.
+    'C\u00F4ng ty C\u1ED5 ph\u1EA7n ... b\u00E1o c\u00E1o ...' — grab it with diacritics intact."""
+    s = re.sub(r"\s+", " ", content or "").strip()
+    if not s:
+        return ""
+    m = re.match(r"^(.{5,90}?)\s+(?:b\u00E1o c\u00E1o|th\u00F4ng b\u00E1o|c\u00F4ng b\u1ED1|ti\u1EBFp nh\u1EADn|tr\u1EA3 l\u1EDDi)",
+                 s, re.I)
+    if not m:
+        return ""
+    name = m.group(1).strip(" -:.,\u2013")
+    if _COMPANY_HINT_RE.search(name) and not re.search(r"\b(t\u00F4i|ch\u1EC9 \u0111\u1EA1i|ng\u01B0\u1EDDi)\b", name[:20], re.I):
+        return name
+    return ""
+
+
+def _company_from_slug(finance_url: str, ticker: str) -> str:
+    """FinanceURL looks like '/DGW-ctcp-digitech-group' — title-case the tail."""
+    tail = ""
+    for part in (finance_url or "").split("/"):
+        if part.strip():
+            tail = part
+    tail = re.sub(r"^[A-Za-z0-9]+-", "", tail).strip()
+    if not tail or "-" not in tail:
+        return ""
+    words = tail.replace("-", " ").split()
+    return " ".join(w.capitalize() for w in words)
+
+
 def _to_row(rec, ticker_info, id_counter):
     """Normalize a single raw vietstock record into a Transaction row dict."""
     def g(*keys, default=""):
@@ -251,7 +286,13 @@ def _to_row(rec, ticker_info, id_counter):
     return {
         "id": id_counter,
         "ticker": ticker,
-        "company": str(g("company", "organization") or info.get("company") or ticker),
+        "company": str(
+            g("company", "organization")
+            or info.get("company")
+            or _company_from_content(g("content"))
+            or _company_from_slug(g("financeUrl"), ticker)
+            or ticker
+        ),
         "exchange": str(g("exchange", "market") or info.get("exchange") or "").replace("UPCOM", "UPCoM"),
         "person": person_val,
         "role": role_val,

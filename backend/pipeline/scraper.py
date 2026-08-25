@@ -139,6 +139,8 @@ def _parse_record(r: dict) -> dict:
         "eventID": str(r.get("EventID", "")),
         "title": re.sub(r"<[^>]+>", "", r.get("Title", ""))[:200],
         "fileUrl": r.get("FileUrl", ""),
+        "financeUrl": r.get("FinanceURL", ""),
+        "content": re.sub(r"<[^>]+>", " ", r.get("Content", ""))[:400],
     }
 
 
