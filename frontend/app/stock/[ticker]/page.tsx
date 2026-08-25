@@ -9,6 +9,7 @@ import TransactionRow from "@/components/TransactionRow";
 import TransactionModal from "@/components/TransactionModal";
 import PriceChart from "@/components/PriceChart";
 import { useWatchlist } from "@/store/watchlist";
+import { FEATURES } from "@/lib/features";
 import { fmtNum, fmtMoney } from "@/lib/format";
 
 export default function TickerPage() {
@@ -87,7 +88,7 @@ export default function TickerPage() {
             {txs.data?.items[0]?.exchange ? ` · ${txs.data.items[0].exchange}` : ""}
           </div>
         </div>
-        {ticker && (
+        {ticker && FEATURES.watchlist && (
           <button
             className={"btn" + (watching ? " btn-accent" : "")}
             onClick={() => (watching ? removeTicker(ticker) : addTicker(ticker))}

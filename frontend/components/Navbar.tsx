@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { FEATURES } from "@/lib/features";
 import { useState } from "react";
 import { useAuth } from "./AuthProvider";
 
-const TABS = [
+const ALL_TABS = [
   ["/", "Bảng tin"],
   ["/signals", "Tín hiệu"],
   ["/winrate", "Xếp hạng"],
   ["/stock", "Tra cứu"],
   ["/watchlist", "Theo dõi"],
 ];
+const TABS = ALL_TABS.filter(([href]) => href !== "/watchlist" || FEATURES.watchlist);
 
 export default function Navbar() {
   const path = usePathname();
@@ -44,7 +46,7 @@ export default function Navbar() {
         ))}
       </div>
       <div className="nav-right">
-        {session?.user ? (
+        {FEATURES.auth && session?.user ? (
           <>
             <span className="tx-company" style={{ maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis" }}>
               {session.user.email}
@@ -53,11 +55,11 @@ export default function Navbar() {
               Thoát
             </button>
           </>
-        ) : (
+        ) : FEATURES.auth ? (
           <button className="btn" onClick={() => setOpen(true)}>
             Đăng nhập
           </button>
-        )}
+        ) : null}
       </div>
 
       {open && (

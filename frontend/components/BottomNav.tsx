@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { FEATURES } from "@/lib/features";
 
 const TABS = [
   ["/", "Bảng tin", "📋"],
   ["/signals", "Tín hiệu", "🧭"],
   ["/winrate", "Xếp hạng", "🏆"],
   ["/stock", "Tra cứu", "🔎"],
-  ["/watchlist", "Theo dõi", "⭐"],
-];
+].filter(([href]) => href !== "/watchlist" || FEATURES.watchlist);
 
 export default function BottomNav() {
   const path = usePathname();

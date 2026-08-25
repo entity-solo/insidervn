@@ -10,6 +10,7 @@ import TransactionRow from "@/components/TransactionRow";
 import TransactionModal from "@/components/TransactionModal";
 import { fmtNum, fmtMoney } from "@/lib/format";
 import { useWatchlist } from "@/store/watchlist";
+import { FEATURES } from "@/lib/features";
 
 export default function PersonPage() {
   const params = useParams();
@@ -65,13 +66,15 @@ export default function PersonPage() {
           <div className="feed-title" style={{ margin: 0 }}>{name}</div>
           <div className="tx-company">{stats.topRole || "—"}</div>
         </div>
-        <button
-          className={"btn" + (watching ? " btn-accent" : "")}
-          onClick={() => (watching ? removePerson(name) : addPerson(name))}
-          aria-pressed={watching}
-        >
-          {watching ? "✓ Đang theo dõi" : "+ Theo dõi"}
-        </button>
+        {FEATURES.watchlist && (
+          <button
+            className={"btn" + (watching ? " btn-accent" : "")}
+            onClick={() => (watching ? removePerson(name) : addPerson(name))}
+            aria-pressed={watching}
+          >
+            {watching ? "✓ Đang theo dõi" : "+ Theo dõi"}
+          </button>
+        )}
       </div>
 
       <div className="kpi-row">

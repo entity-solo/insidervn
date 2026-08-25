@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { FEATURES } from "@/lib/features";
 
 interface CmdItem {
   label: string;
@@ -12,14 +13,15 @@ interface CmdItem {
   icon: string;
 }
 
-const NAV: CmdItem[] = [
+const ALL_NAV: CmdItem[] = [
   { label: "Bảng tin", href: "/", icon: "📋" },
   { label: "Tín hiệu", href: "/signals", icon: "🧭" },
   { label: "Xếp hạng", href: "/winrate", icon: "🏆" },
   { label: "Tra cứu", href: "/stock", icon: "🔎" },
-  { label: "Theo dõi", href: "/watchlist", icon: "⭐" },
+
   { label: "Giới thiệu", href: "/about", icon: "💡" },
-];
+].filter((n) => n.href !== "/watchlist" || FEATURES.watchlist);
+const NAV = ALL_NAV;
 
 export default function CommandPalette() {
   const [open, setOpen] = useState(false);
