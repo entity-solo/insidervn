@@ -175,16 +175,18 @@ def _company_from_content(content: str) -> str:
 
 
 def _company_from_slug(finance_url: str, ticker: str) -> str:
-    """FinanceURL looks like '/DGW-ctcp-digitech-group' — title-case the tail."""
+    """FinanceURL looks like '/DGW-ctcp-digitech-group.htm' — clean + title-case."""
     tail = ""
     for part in (finance_url or "").split("/"):
         if part.strip():
             tail = part
-    tail = re.sub(r"^[A-Za-z0-9]+-", "", tail).strip()
+    tail = re.sub(r"^[A-Za-z0-9]+-", "", tail.strip())
+    tail = re.sub(r"\.html?$", "", tail, flags=re.I).strip()
     if not tail or "-" not in tail:
         return ""
+    acronyms = {"ctcp": "CTCP", "tnhh": "TNHH", "tmcp": "TMCP", "cp": "CP", "vnm": "VNM"}
     words = tail.replace("-", " ").split()
-    return " ".join(w.capitalize() for w in words)
+    return " ".join(acronyms.get(w.lower(), w.capitalize()) for w in words)
 
 
 def _to_row(rec, ticker_info, id_counter):
