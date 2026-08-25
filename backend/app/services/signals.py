@@ -122,16 +122,25 @@ def get_clusters(db: Session, window_days: int = 14, exchange: str = "all", side
     return dedup
 
 
+def _date_col():
+    """Real action date: empty strings must fall through to date_reg."""
+    return func.coalesce(
+        func.nullif(Transaction.date_from, ""),
+        func.nullif(Transaction.date_reg, ""),
+    )
+
+
 def get_cluster_members(db: Session, ticker: str, persons: list[str], start: str, days: int, side: str) -> list[Transaction]:
     end = (datetime.strptime(start, "%Y-%m-%d") + timedelta(days=days)).strftime("%Y-%m-%d")
+    d = _date_col()
     q = db.query(Transaction).filter(
         Transaction.ticker == ticker,
         Transaction.type == side,
         Transaction.person.in_(persons),
-        func.coalesce(Transaction.date_from, Transaction.date_reg) >= start,
-        func.coalesce(Transaction.date_from, Transaction.date_reg) <= end,
+        d >= start,
+        d <= end,
     )
-    return q.order_by(func.coalesce(Transaction.date_from, Transaction.date_reg)).all()
+    return q.order_by(d).all()
 
 
 def get_dip_buys(db: Session, exchange: str = "all", limit: int = 80) -> list[Transaction]:
@@ -142,7 +151,7 @@ def get_dip_buys(db: Session, exchange: str = "all", limit: int = 80) -> list[Tr
     )
     if exchange != "all":
         q = q.filter(Transaction.exchange == exchange)
-    q = q.order_by(func.coalesce(Transaction.date_from, Transaction.date_reg).desc())
+    q = q.order_by(_date_col().desc())
     return q.limit(limit).all()
 
 
@@ -152,7 +161,7 @@ def get_largest(db: Session, side: str = "buy", exchange: str = "all", limit: in
         q = q.filter(Transaction.exchange == exchange)
     if days and days > 0:
         cutoff = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
-        q = q.filter(func.coalesce(Transaction.date_from, Transaction.date_reg) >= cutoff)
+        q = q.filter(_date_col() >= cutoff)
     q = q.order_by(Transaction.executed.desc())
     return q.limit(limit).all()
 
@@ -161,7 +170,7 @@ def get_treasury(db: Session, exchange: str = "all", limit: int = 100) -> list[T
     q = db.query(Transaction).filter(Transaction.role_key == "treasury")
     if exchange != "all":
         q = q.filter(Transaction.exchange == exchange)
-    q = q.order_by(func.coalesce(Transaction.date_from, Transaction.date_reg).desc())
+    q = q.order_by(_date_col().desc())
     return q.limit(limit).all()
 
 
@@ -173,7 +182,7 @@ def get_rally_sells(db: Session, exchange: str = "all", limit: int = 80) -> list
     )
     if exchange != "all":
         q = q.filter(Transaction.exchange == exchange)
-    q = q.order_by(func.coalesce(Transaction.date_from, Transaction.date_reg).desc())
+    q = q.order_by(_date_col().desc())
     rows = q.limit(limit).all()
     return [TransactionOut.model_validate(r) for r in rows]
 
