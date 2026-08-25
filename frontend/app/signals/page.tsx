@@ -155,7 +155,6 @@ const JUMPS: [string, string][] = [
 
 export default function SignalsPage() {
   const [winDays, setWinDays] = useState(14);
-  const [largeDays, setLargeDays] = useState(90);
   const rallyRender = useMemo(
     () => (tx: Transaction, select: (t: Transaction) => void) => <RallyRow tx={tx} />,
     []
@@ -214,21 +213,9 @@ export default function SignalsPage() {
 
       <TxBlock
         id="mua-lon" icon="💰" title="Mua lớn"
-        desc={largeDays ? `Lệnh mua khối lượng lớn nhất trong ${largeDays === 90 ? "90 ngày" : "1 năm"} qua` : "Lệnh mua có khối lượng thực hiện lớn nhất mọi thời đại"}
-        queryKey={["largest", "buy", largeDays]} queryFn={() => api.largest("buy", "all", largeDays)}
+        desc="Lệnh mua khối lượng lớn nhất trong 1 năm qua"
+        queryKey={["largest", "buy", 365]} queryFn={() => api.largest("buy", "all", 365)}
         render={(tx, select) => <TransactionRow key={tx.id} tx={tx} onClick={() => select(tx)} />}
-        extra={
-          <div className="filter-group">
-            <span className="filter-label">Khoảng</span>
-            <div className="filters">
-              {[[90, "90 ngày"], [365, "1 năm"], [0, "Mọi thời đại"]].map(([d, l]) => (
-                <button key={d as number} className={"filter-btn" + (largeDays === d ? " active" : "")} onClick={() => setLargeDays(d as number)}>
-                  {l as string}
-                </button>
-              ))}
-            </div>
-          </div>
-        }
       />
 
       <TxBlock
