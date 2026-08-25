@@ -1,13 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import type { Cluster } from "@/lib/types";
 import { fmtDate, fmtNum } from "@/lib/format";
 
 export default function ClusterCard({ c, side = "buy" }: { c: Cluster; side?: "buy" | "sell" }) {
   const isBuy = side === "buy";
   return (
-    <Link href={`/stock?ticker=${c.ticker}`} className={`cluster-card ${side}`} style={{ display: "block" }}>
+    <div className={`cluster-card ${side}`} style={{ display: "block" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <span className="tx-ticker" style={{ fontSize: 18 }}>
@@ -37,6 +36,6 @@ export default function ClusterCard({ c, side = "buy" }: { c: Cluster; side?: "b
         </span>
         <span>{c.count} người</span>
       </div>
-    </Link>
+    </div>
   );
 }

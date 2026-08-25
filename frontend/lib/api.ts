@@ -38,6 +38,14 @@ export const api = {
   winrates: (filter: string, person = "") => get<Winrate[]>("/winrate", { filter, person }),
   clusters: (window: number, exchange = "all", side = "buy", limit = 100) =>
     get<Cluster[]>("/signals/clusters", { window, exchange, side, limit }),
+  clusterMembers: (ticker: string, persons: string[], start: string, side: "buy" | "sell", days = 14) =>
+    get<Transaction[]>("/signals/cluster-members", {
+      ticker,
+      persons: persons.join(","),
+      start,
+      side,
+      days,
+    }),
   dip: (exchange = "all") => get<Transaction[]>("/signals/dip", { exchange }),
   largest: (side: "buy" | "sell" = "buy", exchange = "all", days = 0) =>
     get<Transaction[]>("/signals/largest", { side, exchange, days: days || undefined }),

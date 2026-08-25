@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { fmtDate } from "@/lib/format";
 import type { Transaction } from "@/lib/types";
 import ClusterCard from "@/components/ClusterCard";
+import ClusterModal from "@/components/ClusterModal";
 import TransactionRow from "@/components/TransactionRow";
 import TransactionModal from "@/components/TransactionModal";
 import PageHeader from "@/components/PageHeader";
@@ -107,14 +108,28 @@ function ClusterBlock({ id, icon, title, side, desc, window: winDays }: { id: st
     queryFn: () => api.clusters(winDays, "all", side, 100),
     enabled: inView,
   });
+  const [selected, setSelected] = useState<any>(null);
   return (
     <div ref={ref} id={id}>
       <BlockShell
         icon={icon} title={title} desc={desc}
         count={q.data?.length} isLoading={q.isLoading} isError={q.isError}
         refetch={() => q.refetch()} items={q.data ?? []}
-        renderItem={(c, i) => <ClusterCard key={`${c.ticker}-${c.start}-${i}`} c={c} side={side} />}
+        renderItem={(c, i) => (
+          <div
+            key={`${c.ticker}-${c.start}-${i}`}
+            onClick={() => setSelected(c)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelected(c)}
+          >
+            <ClusterCard c={c} side={side} />
+          </div>
+        )}
       />
+      {selected && (
+        <ClusterModal cluster={selected} side={side} windowDays={winDays} onClose={() => setSelected(null)} />
+      )}
     </div>
   );
 }

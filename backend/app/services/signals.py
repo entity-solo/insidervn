@@ -122,6 +122,18 @@ def get_clusters(db: Session, window_days: int = 14, exchange: str = "all", side
     return dedup
 
 
+def get_cluster_members(db: Session, ticker: str, persons: list[str], start: str, days: int, side: str) -> list[Transaction]:
+    end = (datetime.strptime(start, "%Y-%m-%d") + timedelta(days=days)).strftime("%Y-%m-%d")
+    q = db.query(Transaction).filter(
+        Transaction.ticker == ticker,
+        Transaction.type == side,
+        Transaction.person.in_(persons),
+        func.coalesce(Transaction.date_from, Transaction.date_reg) >= start,
+        func.coalesce(Transaction.date_from, Transaction.date_reg) <= end,
+    )
+    return q.order_by(func.coalesce(Transaction.date_from, Transaction.date_reg)).all()
+
+
 def get_dip_buys(db: Session, exchange: str = "all", limit: int = 80) -> list[Transaction]:
     q = db.query(Transaction).filter(
         Transaction.type == "buy",

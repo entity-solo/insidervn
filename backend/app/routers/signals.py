@@ -19,6 +19,20 @@ def clusters(
     return signal_svc.get_clusters(db, window_days=window, exchange=exchange, side=side, limit=limit)
 
 
+@router.get("/cluster-members", response_model=list[TransactionOut])
+def cluster_members(
+    ticker: str,
+    persons: str,
+    start: str,
+    side: str = Query("buy", pattern="^(buy|sell)$"),
+    days: int = Query(14, ge=1, le=90),
+    db: Session = Depends(get_db),
+):
+    plist = [p.strip() for p in persons.split(",") if p.strip()][:20]
+    rows = signal_svc.get_cluster_members(db, ticker=ticker, persons=plist, start=start, days=days, side=side)
+    return [TransactionOut.model_validate(r) for r in rows]
+
+
 @router.get("/dip", response_model=list[TransactionOut])
 def dip(
     exchange: str = "all",
