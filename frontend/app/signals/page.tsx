@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { api } from "@/lib/api";
@@ -26,31 +26,6 @@ function useInView<T extends HTMLElement>() {
     return () => obs.disconnect();
   }, [inView]);
   return { ref, inView };
-}
-
-function RallyRow({ tx }: { tx: Transaction }) {
-  const r = tx.rally ?? 0;
-  return (
-    <div className="tx-item sell">
-      <div className="tx-ticker">{tx.ticker}</div>
-      <div className="tx-main">
-        <div className="tx-person">
-          {tx.person}
-          {tx.person_type === "org" && <span className="tx-org">Tổ chức</span>}
-          <span style={{ color: "var(--muted)", fontWeight: 500 }}> · {tx.role}</span>
-        </div>
-        <div className="tx-company">{tx.company} · {tx.exchange}</div>
-      </div>
-      <div className="tx-right">
-        <div className="tx-meta">{fmtDate(tx.date_reg)}</div>
-        <div className="tx-meta">{(tx.executed ?? 0).toLocaleString("vi-VN")} cp</div>
-        <div className={"tx-meta " + (r >= 0 ? "pos" : "neg")}>
-          {r >= 0 ? "▲ +" : "▼ "}
-          {r}%
-        </div>
-      </div>
-    </div>
-  );
 }
 
 function BlockShell({
@@ -170,10 +145,6 @@ const JUMPS: [string, string][] = [
 
 export default function SignalsPage() {
   const [winDays, setWinDays] = useState(14);
-  const rallyRender = useMemo(
-    () => (tx: Transaction, select: (t: Transaction) => void) => <RallyRow tx={tx} />,
-    []
-  );
   return (
     <div className="panel">
       <PageHeader
@@ -223,7 +194,14 @@ export default function SignalsPage() {
         id="ban-khi-tang" icon="📈" title="Bán khi tăng"
         desc="Lượt bán diễn ra sau khi giá đã tăng ≥5% (4 tuần trước ngày giao dịch)"
         queryKey={["rally"]} queryFn={() => api.rally()}
-        render={rallyRender}
+        render={(tx, select) => (
+          <TransactionRow
+            key={tx.id}
+            tx={tx}
+            onClick={() => select(tx)}
+            extra={tx.rally != null ? { value: `▲ +${tx.rally}%`, tone: "pos" } : undefined}
+          />
+        )}
       />
 
       <TxBlock

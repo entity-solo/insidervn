@@ -16,7 +16,15 @@ const TYPE_CLS: Record<string, string> = {
   register_sell: "badge-reg_sell",
 };
 
-export default function TransactionRow({ tx, onClick }: { tx: Transaction; onClick: () => void }) {
+export default function TransactionRow({
+  tx,
+  onClick,
+  extra,
+}: {
+  tx: Transaction;
+  onClick: () => void;
+  extra?: { value: string; tone?: "pos" | "neg" };
+}) {
   const isPending = (tx.executed ?? 0) === 0;
   const isBuy = (tx.type || "").includes("buy");
   const badgeType = isPending ? (isBuy ? "register_buy" : "register_sell") : (isBuy ? "buy" : "sell");
@@ -55,6 +63,7 @@ export default function TransactionRow({ tx, onClick }: { tx: Transaction; onCli
         <div className="tx-meta">
           {volume.toLocaleString("vi-VN")} cp
         </div>
+        {extra && <div className={"tx-meta " + (extra.tone || "")}>{extra.value}</div>}
         {tx.perf_1m != null && (
           <div className={"tx-meta " + (tx.perf_1m >= 0 ? "pos" : "neg")}>{fmtPct(tx.perf_1m)}</div>
         )}
