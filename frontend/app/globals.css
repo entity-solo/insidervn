@@ -23,6 +23,9 @@
 
 html { scroll-behavior: smooth; }
 
+body { display: flex; flex-direction: column; min-height: 100vh; }
+body > main { flex: 1 0 auto; }
+
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; border: 2px solid var(--bg); }
@@ -340,8 +343,14 @@ select.filter-select { background: var(--surface-2); border: 1px solid var(--bor
 .cmd-trigger { font-size: 12px; padding: 6px 9px; }
 
 /* Footer */
-.footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 20px 0 28px; color: var(--muted); }
-.footer .logo-seal { width: 24px; height: 24px; font-size: 13px; }
+.footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 22px 0 30px; color: var(--muted); }
+.footer .logo { display: inline-flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 800; }
+.footer .logo-seal { width: 24px; height: 24px; font-size: 13px; border-width: 2px; }
+.footer-row { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.footer-links { display: flex; gap: 16px; }
+.footer-links a { font-size: 13px; font-weight: 600; }
+.footer-links a:hover { color: var(--accent); }
+.footer-note { margin-left: auto; font-size: 12px; }
 
 @media (max-width: 720px) {
   .bottom-nav {
