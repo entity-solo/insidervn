@@ -6,11 +6,11 @@ import { api } from "@/lib/api";
 import WinrateRow from "@/components/WinrateRow";
 import PageHeader from "@/components/PageHeader";
 
-const FILTERS = [
-  ["all", "Đáng tin cậy"],
-  ["winner", "WR cao nhất"],
-  ["loser", "WR thấp nhất"],
-  ["volume", "KL lớn nhất"],
+const FILTERS: [string, string, string][] = [
+  ["all", "Đáng tin cậy", "Ưu tiên người có thành tích dài, ổn định — không thưởng số may mắn với vài đầu lột"],
+  ["winner", "WR cao nhất", "Win rate thực cao nhất trước (chỉ tính người WR ≥50%)"],
+  ["loser", "WR thấp nhất", "Win rate thấp nhất trước — những người mua dở nhất"],
+  ["volume", "KL lớn nhất", "Người di chuyển nhiều tiền nhất"],
 ];
 
 export default function WinratePage() {
