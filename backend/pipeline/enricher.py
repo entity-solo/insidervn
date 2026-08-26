@@ -233,6 +233,56 @@ def fetch_prices_live(all_tickers: list[str], cap: int = 760, existing: set[str]
     return cache
 
 
+# ---------- live price refresh (called from scheduler) ----------
+PRICE_REFRESH_BATCH = 100  # ~5.5 min at 3.4s/ticker; safe for vnstock rate limits
+
+
+def refresh_prices(session=None) -> dict:
+    """Fetch live prices for tickers missing from the offline cache, persist
+    the updated cache file, then run a full enrichment pass.
+
+    Designed as a lightweight daily cron job — no scrape/migrate needed.
+    """
+    own = session is None
+    session = session or SessionLocal()
+    try:
+        # 1) existing cache + all tickers referenced by transactions
+        cache = load_price_cache()
+        all_tickers = [
+            t for (t,) in session.execute(select(Transaction.ticker).distinct()).all()
+        ]
+        missing = [t for t in all_tickers if t not in cache][:PRICE_REFRESH_BATCH]
+        if not missing:
+            logger.info("refresh_prices: all %s tickers have cached prices", len(all_tickers))
+            return {"fetched": 0, "total_tickers": len(all_tickers)}
+
+        # 2) fetch live
+        logger.info("refresh_prices: fetching %s live prices (batch %s/%s)", len(missing), len(missing), len(all_tickers))
+        live = fetch_prices_live(missing)
+
+        # 3) merge into cache + persist
+        cache.update(live)
+        try:
+            with open(CACHE_FILE, "w", encoding="utf-8") as f:
+                json.dump(cache, f)
+            logger.info("refresh_prices: cache updated (%s tickers total)", len(cache))
+        except Exception as e:
+            logger.warning("refresh_prices: could not persist cache: %s", e)
+
+        # 4) re-enrich with the updated cache
+        enrich_result = enrich(session=session, offline=True, cache_path=None)
+
+        return {
+            "fetched": len(missing),
+            "got_prices": sum(1 for v in live.values() if v),
+            "total_tickers": len(all_tickers),
+            "enrich": enrich_result,
+        }
+    finally:
+        if own:
+            session.close()
+
+
 # ---------- enrichment ----------
 def enrich(db=None, offline: bool = True, cache_path: str | None = None) -> dict:
     own = db is None
