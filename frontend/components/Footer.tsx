@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LogoIcon from "./LogoIcon";
 
 export default function Footer() {
   return (
@@ -6,7 +7,7 @@ export default function Footer() {
       <div className="container">
         <div className="footer-row">
           <Link href="/" className="logo">
-            <div className="logo-seal">N</div>
+            <LogoIcon size={24} />
             InsiderVN
           </Link>
           <nav className="footer-links">

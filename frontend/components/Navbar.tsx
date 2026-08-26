@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { FEATURES } from "@/lib/features";
 import { useState } from "react";
 import { useAuth } from "./AuthProvider";
+import LogoIcon from "./LogoIcon";
 
 const ALL_TABS = [
   ["/", "Bảng tin"],
@@ -35,7 +36,7 @@ export default function Navbar() {
   return (
     <nav className="nav">
       <Link href="/" className="logo">
-        <div className="logo-seal">N</div>
+        <LogoIcon size={30} />
         InsiderVN
       </Link>
       <div className="nav-tabs">
