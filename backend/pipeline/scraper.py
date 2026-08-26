@@ -177,6 +177,9 @@ def save_raw(records: list[dict], path: str | None = None):
         json.dump(records, f, ensure_ascii=False)
 
 
+LAST_NEW_EIDS: set | None = None
+
+
 def scrape(full: bool = False, since: datetime | None = None, live: bool = True) -> list[dict]:
     """Return raw insider records.
 
@@ -191,8 +194,17 @@ def scrape(full: bool = False, since: datetime | None = None, live: bool = True)
             recs = load_raw(LEGACY_RAW_FILE)
         return recs
 
+    global LAST_NEW_EIDS
+    LAST_NEW_EIDS = None
     try:
-        return _scrape_live(full=full, since=since)
+        recs = _scrape_live(full=full, since=since)
+        LAST_NEW_EIDS = set()
+        for rec in recs:
+            try:
+                LAST_NEW_EIDS.add(int(rec.get("eventID") or rec.get("event_id") or 0))
+            except (TypeError, ValueError):
+                continue
+        return recs
     except Exception as e:
         logger.warning("Live scrape failed (%s); falling back to offline raw file", e)
         return load_raw()
@@ -201,7 +213,9 @@ def scrape(full: bool = False, since: datetime | None = None, live: bool = True)
 def _scrape_live(full: bool = False, since: datetime | None = None) -> list[dict]:
     session = _new_session()
     existing = load_raw()
-    seen = {_record_key(_normalize(r)) for r in existing}
+    # Key-indexed store: a re-fetched record REFRESHES its previous copy so
+    # status changes (Đăng ký -> Kết quả) survive the dedup.
+    by_key: dict[str, dict] = {_record_key(_normalize(r)): r for r in existing}
 
     fdate, tdate = FULL_RANGE
     logger.info("Scraper LIVE mode: %s %s -> %s", "FULL" if full else "INCREMENTAL", fdate, tdate)
@@ -257,12 +271,10 @@ def _scrape_live(full: bool = False, since: datetime | None = None) -> list[dict
             if not parsed.get("ticker"):
                 continue
             key = _record_key(parsed)
-            if key in seen:
-                continue
-            seen.add(key)
-            existing.append(parsed)
-            added += 1
-            page_new += 1
+            if key not in by_key:
+                added += 1
+                page_new += 1
+            by_key[key] = parsed  # new OR refreshed in place
 
         if page_new == 0:
             consecutive_seen += 1
@@ -272,6 +284,7 @@ def _scrape_live(full: bool = False, since: datetime | None = None) -> list[dict
         else:
             consecutive_seen = 0
 
+        existing = list(by_key.values())
         if page % 10 == 0 or page <= 3 or page == start_page:
             logger.info("Page %s: +%s new (total %s)", page, added, len(existing))
         if page % 50 == 0:

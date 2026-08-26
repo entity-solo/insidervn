@@ -18,7 +18,7 @@ import time
 import bisect
 from datetime import date, datetime, timedelta
 
-from sqlalchemy import select, text
+from sqlalchemy import func, or_, select, text
 
 from app.config import SOURCE_DIR
 from app.database import SessionLocal
@@ -244,7 +244,19 @@ def enrich(db=None, offline: bool = True, cache_path: str | None = None) -> dict
             existing_tickers = set(session.execute(select(Price.ticker)).scalars().all())
             hist = fetch_prices_live(tickers, existing=existing_tickers)
 
-        rows = session.execute(select(Transaction)).scalars().all()
+        # Only load rows that can actually change: recent trades (perf updates
+        # as new closes arrive) or rows still missing performance. Loading the
+        # full 28k-row table every run trips the Supabase pooler's connection
+        # timeout (SSL closed unexpectedly).
+        cutoff = (datetime.now() - timedelta(days=45)).strftime("%Y-%m-%d")
+        dcol = func.coalesce(func.nullif(Transaction.date_from, ""), func.nullif(Transaction.date_reg, ""))
+        rows = (
+            session.execute(
+                select(Transaction).where(or_(dcol >= cutoff, Transaction.perf_1m.is_(None)))
+            )
+            .scalars()
+            .all()
+        )
         updates = []
         hit = 0
         sorted_cache = {}

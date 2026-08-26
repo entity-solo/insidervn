@@ -50,7 +50,21 @@ def run_pipeline(full: bool = False, live: bool = False, enrich_offline: bool = 
         if live:
             raw = scraper.scrape(full=full, live=True)
             logger.info("Scraped %s raw records", len(raw))
+            new_eids = getattr(scraper, "LAST_NEW_EIDS", None)
+            if new_eids is not None and len(new_eids) == 0 and not full:
+                logger.info("No new records - skipping migrate/enrich/winrate")
+                _mark_crawl(ok=True)
+                return {
+                    "raw": len(raw),
+                    "inserted": 0,
+                    "updated": 0,
+                    "skipped": "no new records",
+                    "ok": True,
+                }
             rows = migrator.migrate(raw)
+            if new_eids is not None:
+                rows = [r for r in rows if r.get("event_id") in new_eids]
+                logger.info("Focused on %s new/changed rows", len(rows))
         else:
             # Offline first-seed: use the complete legacy snapshot (instant) when
             # present; otherwise the raw scrape cache; else nothing.
@@ -88,7 +102,13 @@ def run_pipeline(full: bool = False, live: bool = False, enrich_offline: bool = 
     try:
         # Prices come from the bundled cache by default (no external dependency).
         # Pass enrich_offline=False only if `vnstock` is installed for live prices.
-        enrich_res = enricher.enrich(offline=enrich_offline)
+        try:
+            enrich_res = enricher.enrich(offline=enrich_offline)
+        except Exception as e:
+            # Long transfers over the pooler occasionally get cut (SSL closed);
+            # one retry on the reduced row set is enough in practice.
+            logger.warning("Enrichment attempt 1 failed, retrying: %s", e)
+            enrich_res = enricher.enrich(offline=enrich_offline)
         logger.info("Enriched: %s", enrich_res)
     except Exception as e:
         logger.error("Enrichment failed (pipeline continues): %s", e)
