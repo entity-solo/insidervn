@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_BASE || "";
+const API = "";
 
 interface Dashboard {
   pipeline: { last_crawl_at: string | null; last_crawl_ok: boolean };
