@@ -34,7 +34,7 @@ def dashboard(_: str = Depends(_verify_token)):
         total = db.execute(text("SELECT count(*) FROM transactions")).scalar() or 0
         by_type = dict(db.execute(text("SELECT type, count(*) FROM transactions GROUP BY type")).all())
         price_cov = db.execute(text("SELECT count(DISTINCT ticker) FROM prices")).scalar() or 0
-        wr_count = db.execute(text("SELECT count(*) FROM winrate")).scalar() or 0
+        wr_count = db.execute(text("SELECT count(*) FROM winrates")).scalar() or 0
         perf_cov = db.execute(text("SELECT count(*) FROM transactions WHERE perf_1m IS NOT NULL")).scalar() or 0
 
         # --- DB health ---
