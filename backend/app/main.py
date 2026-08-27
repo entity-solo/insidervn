@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse
 from .config import CORS_ORIGINS, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW
 from .database import init_db
 from . import metrics
-from .routers import admin, meta, prices, search, signals, transactions, winrate
+from .routers import meta, prices, search, signals, transactions, winrate
 
 
 @asynccontextmanager
@@ -94,7 +94,6 @@ app.include_router(winrate.router)
 app.include_router(prices.router)
 app.include_router(search.router)
 app.include_router(meta.router)
-app.include_router(admin.router)
 
 
 @app.get("/")
