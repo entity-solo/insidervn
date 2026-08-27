@@ -35,6 +35,15 @@ def _job_prices():
         logger.exception("Price refresh failed")
 
 
+def _job_tickers():
+    try:
+        from .ticker_updater import refresh_tickers
+        res = refresh_tickers()
+        logger.info("Ticker refresh done: %s", res)
+    except Exception:
+        logger.exception("Ticker refresh failed")
+
+
 def start():
     global _sched
     if _sched is not None:
@@ -47,6 +56,9 @@ def start():
     # fetches live prices for tickers missing from the offline cache so that
     # perf_1w/perf_1m/dip/rally can be computed. ~5 min for ~100 tickers.
     _sched.add_job(_job_prices, "cron", hour=3, minute=0, id="price_refresh", misfire_grace_time=3600)
+    # Daily ticker refresh at 03:30: fetch outstanding_shares from vnstock
+    # for tickers missing from the tickers table. ~4.5 min per batch of 80.
+    _sched.add_job(_job_tickers, "cron", hour=3, minute=30, id="ticker_refresh", misfire_grace_time=3600)
     # Weekly full re-crawl: reconciles statuses of old events (e.g. a "Đăng ký"
     # that later completed) which the incremental scan never revisits.
     _sched.add_job(_job_full, "cron", day_of_week="sun", hour=2, minute=0,

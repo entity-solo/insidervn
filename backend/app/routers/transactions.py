@@ -61,6 +61,7 @@ def list_transactions(
     sort: str = "date",
     dir: str = "desc",
     min_shares: int = 0,
+    min_pct: float = 0,
     db: Session = Depends(get_db),
 ):
     q = q.strip()
@@ -105,12 +106,22 @@ def list_transactions(
     if min_shares > 0:
         query = query.filter(func.coalesce(Transaction.executed, Transaction.shares) >= min_shares)
 
+    if min_pct > 0:
+        from ..models.ticker import Ticker
+        query = query.join(Ticker, Transaction.ticker == Ticker.ticker, isouter=True)
+        tx_vol = func.coalesce(Transaction.executed, Transaction.shares)
+        query = query.filter(
+            Ticker.outstanding_shares.isnot(None),
+            Ticker.outstanding_shares > 0,
+            (tx_vol / Ticker.outstanding_shares * 100) >= min_pct,
+        )
+
     sort_col = SORT_COLS.get(sort, Transaction.date_reg)
     query = query.order_by(sort_col.asc() if dir == "asc" else sort_col.desc())
 
     cache_key = (
         f"tx|{page}|{page_size}|{type}|{exchange}|{role}|{period}|"
-        f"{q}|{person}|{ticker}|{sort}|{dir}|{min_shares}"
+        f"{q}|{person}|{ticker}|{sort}|{dir}|{min_shares}|{min_pct}"
     )
 
     def _build():

@@ -32,6 +32,7 @@ export interface TxParams {
   sort?: string;
   dir?: string;
   min_shares?: number;
+  min_pct?: number;
 }
 
 export const api = {

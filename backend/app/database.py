@@ -63,6 +63,6 @@ def init_db():
             os.makedirs(parent, exist_ok=True)
     # Import every model module so all tables register on Base regardless of
     # call order (the worker may call init_db() before any other import).
-    from .models import app_meta, price, transaction, winrate  # noqa: F401
+    from .models import app_meta, price, ticker, transaction, winrate  # noqa: F401
 
     Base.metadata.create_all(bind=engine)

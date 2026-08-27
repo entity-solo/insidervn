@@ -30,15 +30,29 @@ const VOLUME_FILTERS: [number, string][] = [
   [500_000, ">500k"],
   [1_000_000, ">1M"],
 ];
+const PCT_FILTERS: [number, string][] = [
+  [0, "Tất cả"],
+  [0.01, ">0.01%"],
+  [0.05, ">0.05%"],
+  [0.1, ">0.1%"],
+  [0.5, ">0.5%"],
+  [1, ">1%"],
+];
 
 export default function FeedPage() {
   const [type, setType] = useState("all");
   const [role, setRole] = useState("all");
   const [period, setPeriod] = useState("all");
   const [minShares, setMinShares] = useState(0);
+  const [minPct, setMinPct] = useState(0);
   const [selected, setSelected] = useState<Transaction | null>(null);
 
-  const params: TxParams = { type, role, period, min_shares: minShares || undefined, dir: "desc", page_size: 60 };
+  const params: TxParams = {
+    type, role, period,
+    min_shares: minShares || undefined,
+    min_pct: minPct || undefined,
+    dir: "desc", page_size: 60,
+  };
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteQuery({
     queryKey: ["tx", params],
     queryFn: ({ pageParam = 1 }) => api.transactions({ ...params, page: pageParam }),
@@ -158,6 +172,16 @@ export default function FeedPage() {
               ))}
             </div>
           </div>
+          <div className="filter-group">
+            <span className="filter-label">% CP lưu hành</span>
+            <div className="filters">
+              {PCT_FILTERS.map(([v, l]) => (
+                <button key={v} className={"filter-btn" + (minPct === v ? " active" : "")} onClick={() => setMinPct(v)}>
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -180,7 +204,7 @@ export default function FeedPage() {
       {!isLoading && !isError && items.length === 0 && (
         <div className="empty-card">
           <div>Không có giao dịch nào khớp với bộ lọc hiện tại.</div>
-          <button className="btn" onClick={() => { setType("all"); setRole("all"); setMinShares(0); }}>
+          <button className="btn" onClick={() => { setType("all"); setRole("all"); setMinShares(0); setMinPct(0); }}>
             Xóa bộ lọc
           </button>
         </div>
