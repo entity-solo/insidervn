@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import os
 import time
+from datetime import datetime, timedelta
+from functools import lru_cache
 
+import requests
 from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy import func, text
 
@@ -13,6 +16,11 @@ from app.database import SessionLocal
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "")
+VERCEL_TOKEN = os.environ.get("VERCEL_TOKEN", "")
+VERCEL_PROJECT_ID = os.environ.get("VERCEL_PROJECT_ID", "prj_W1IMhOFkeNbAKo1BQpqIGsQQ2tn6")
+VERCEL_TEAM_ID = os.environ.get("VERCEL_TEAM_ID", "team_izjXDEFPwNix14ER7kae8DOj")
+
+_analytics_base = "https://api.vercel.com/v1/query/web-analytics"
 
 
 def _verify_token(authorization: str = Header(None)):
@@ -20,6 +28,26 @@ def _verify_token(authorization: str = Header(None)):
         raise HTTPException(status_code=503, detail="ADMIN_TOKEN not configured")
     if not authorization or authorization.removeprefix("Bearer ").strip() != ADMIN_TOKEN:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+
+def _va_get(path: str, params: dict) -> dict | None:
+    """Query Vercel Analytics API. Returns None on failure."""
+    if not VERCEL_TOKEN:
+        return None
+    try:
+        params["projectId"] = VERCEL_PROJECT_ID
+        params["teamId"] = VERCEL_TEAM_ID
+        r = requests.get(
+            f"{_analytics_base}/{path}",
+            headers={"Authorization": f"Bearer {VERCEL_TOKEN}"},
+            params=params,
+            timeout=15,
+        )
+        if r.ok:
+            return r.json()
+    except Exception:
+        pass
+    return None
 
 
 @router.get("/dashboard")
@@ -55,6 +83,37 @@ def dashboard(_: str = Depends(_verify_token)):
         except ImportError:
             sys_info = {"db_latency_ms": db_latency_ms}
 
+        # --- Traffic (Vercel Analytics) ---
+        until = datetime.utcnow().strftime("%Y-%m-%d")
+        since_30d = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%d")
+        since_7d = (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%d")
+
+        traffic: dict = {"enabled": bool(VERCEL_TOKEN)}
+
+        if VERCEL_TOKEN:
+            # Totals
+            t30 = _va_get("visits/count", {"since": since_30d, "until": until})
+            t7 = _va_get("visits/count", {"since": since_7d, "until": until})
+            traffic["total_30d"] = t30.get("data", {}) if t30 else {}
+            traffic["total_7d"] = t7.get("data", {}) if t7 else {}
+
+            # Daily trend (14d)
+            since_14d = (datetime.utcnow() - timedelta(days=14)).strftime("%Y-%m-%d")
+            daily = _va_get("visits/aggregate", {"since": since_14d, "until": until, "by": "day"})
+            traffic["daily"] = daily.get("data", []) if daily else []
+
+            # Top pages (30d)
+            pages = _va_get("visits/aggregate", {"since": since_30d, "until": until, "by": "route", "limit": 10})
+            traffic["top_pages"] = pages.get("data", []) if pages else []
+
+            # Top referrers (30d)
+            refs = _va_get("visits/aggregate", {"since": since_30d, "until": until, "by": "referrerHostname", "limit": 8})
+            traffic["top_referrers"] = refs.get("data", []) if refs else []
+
+            # Countries (30d)
+            countries = _va_get("visits/aggregate", {"since": since_30d, "until": until, "by": "country", "limit": 8})
+            traffic["top_countries"] = countries.get("data", []) if countries else []
+
         return {
             "pipeline": {
                 "last_crawl_at": meta.get("last_crawl_at"),
@@ -69,6 +128,7 @@ def dashboard(_: str = Depends(_verify_token)):
             },
             "system": sys_info,
             "api": metrics.snapshot(),
+            "traffic": traffic,
         }
     finally:
         db.close()

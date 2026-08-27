@@ -21,6 +21,15 @@ interface Dashboard {
     uptime_s: number;
     endpoints: { path: string; count: number; avg_ms: number; p95_ms: number }[];
   };
+  traffic: {
+    enabled: boolean;
+    total_30d?: { visitors?: number; pageviews?: number };
+    total_7d?: { visitors?: number; pageviews?: number };
+    daily?: { timestamp: string; visitors: number; pageviews: number }[];
+    top_pages?: { route: string; visitors: number; pageviews: number }[];
+    top_referrers?: { referrerHostname: string; visitors: number; pageviews: number }[];
+    top_countries?: { country: string; visitors: number; pageviews: number }[];
+  };
 }
 
 function Stat({ label, value, sub, ok }: { label: string; value: string | number; sub?: string; ok?: boolean }) {
@@ -245,6 +254,85 @@ export default function AdminPage() {
               </tbody>
             </table>
           </div>
+        )}
+      </section>
+
+      {/* Traffic */}
+      <section style={{ marginBottom: 24 }}>
+        <h2 style={{ fontSize: 14, fontWeight: 700, color: "var(--muted)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>
+          Visitors
+        </h2>
+        {!data.traffic.enabled ? (
+          <div className="dash-stat" style={{ maxWidth: 400 }}>
+            <div className="dash-stat-label">Vercel Analytics</div>
+            <div className="dash-stat-value" style={{ fontSize: 14 }}>Chưa cấu hình VERCEL_TOKEN</div>
+          </div>
+        ) : (
+          <>
+            <div className="dash-grid" style={{ marginBottom: 12 }}>
+              <Stat label="Visitors (7 ngày)" value={data.traffic.total_7d?.visitors ?? "—"} />
+              <Stat label="Pageviews (7 ngày)" value={data.traffic.total_7d?.pageviews ?? "—"} />
+              <Stat label="Visitors (30 ngày)" value={data.traffic.total_30d?.visitors ?? "—"} />
+              <Stat label="Pageviews (30 ngày)" value={data.traffic.total_30d?.pageviews ?? "—"} />
+            </div>
+
+            {/* Daily trend */}
+            {data.traffic.daily && data.traffic.daily.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)", marginBottom: 8 }}>Xu hướng 14 ngày</div>
+                <div style={{ display: "flex", gap: 3, alignItems: "flex-end", height: 60 }}>
+                  {data.traffic.daily.map((d) => {
+                    const max = Math.max(...data.traffic.daily!.map((x) => x.visitors), 1);
+                    const h = Math.max(2, (d.visitors / max) * 50);
+                    return (
+                      <div key={d.timestamp} style={{ flex: 1, textAlign: "center" }} title={`${d.timestamp.slice(5)}: ${d.visitors} visitors`}>
+                        <div style={{ height: h, background: "var(--accent)", borderRadius: 3, opacity: 0.7 }} />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Top pages */}
+            {data.traffic.top_pages && data.traffic.top_pages.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)", marginBottom: 8 }}>Trang phổ biến (30 ngày)</div>
+                {data.traffic.top_pages.map((pg) => (
+                  <div key={pg.route} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: "1px solid var(--border)", fontSize: 13 }}>
+                    <span style={{ fontFamily: "monospace", fontSize: 12 }}>{pg.route}</span>
+                    <span style={{ color: "var(--muted)" }}>{pg.visitors} visitors · {pg.pageviews} pv</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Referrers + Countries */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              {data.traffic.top_referrers && data.traffic.top_referrers.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)", marginBottom: 8 }}>Referrers</div>
+                  {data.traffic.top_referrers.map((r) => (
+                    <div key={r.referrerHostname} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: "1px solid var(--border)", fontSize: 13 }}>
+                      <span>{r.referrerHostname || "(direct)"}</span>
+                      <span style={{ color: "var(--muted)" }}>{r.visitors}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {data.traffic.top_countries && data.traffic.top_countries.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)", marginBottom: 8 }}>Quốc gia</div>
+                  {data.traffic.top_countries.map((c) => (
+                    <div key={c.country} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: "1px solid var(--border)", fontSize: 13 }}>
+                      <span>{c.country}</span>
+                      <span style={{ color: "var(--muted)" }}>{c.visitors}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
         )}
       </section>
     </main>
