@@ -60,6 +60,7 @@ def list_transactions(
     ticker: str = "",
     sort: str = "date",
     dir: str = "desc",
+    min_shares: int = 0,
     db: Session = Depends(get_db),
 ):
     q = q.strip()
@@ -101,12 +102,15 @@ def list_transactions(
             )
         )
 
+    if min_shares > 0:
+        query = query.filter(func.coalesce(Transaction.executed, Transaction.shares) >= min_shares)
+
     sort_col = SORT_COLS.get(sort, Transaction.date_reg)
     query = query.order_by(sort_col.asc() if dir == "asc" else sort_col.desc())
 
     cache_key = (
         f"tx|{page}|{page_size}|{type}|{exchange}|{role}|{period}|"
-        f"{q}|{person}|{ticker}|{sort}|{dir}"
+        f"{q}|{person}|{ticker}|{sort}|{dir}|{min_shares}"
     )
 
     def _build():

@@ -22,14 +22,23 @@ const ROLES = [
   ["related", "Người liên quan"],
   ["treasury", "Cổ phiếu quỹ"],
 ];
+const VOLUME_FILTERS: [number, string][] = [
+  [0, "Tất cả"],
+  [10_000, ">10k"],
+  [50_000, ">50k"],
+  [100_000, ">100k"],
+  [500_000, ">500k"],
+  [1_000_000, ">1M"],
+];
 
 export default function FeedPage() {
   const [type, setType] = useState("all");
   const [role, setRole] = useState("all");
   const [period, setPeriod] = useState("all");
+  const [minShares, setMinShares] = useState(0);
   const [selected, setSelected] = useState<Transaction | null>(null);
 
-  const params: TxParams = { type, role, period, dir: "desc", page_size: 60 };
+  const params: TxParams = { type, role, period, min_shares: minShares || undefined, dir: "desc", page_size: 60 };
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteQuery({
     queryKey: ["tx", params],
     queryFn: ({ pageParam = 1 }) => api.transactions({ ...params, page: pageParam }),
@@ -139,6 +148,16 @@ export default function FeedPage() {
               ))}
             </div>
           </div>
+          <div className="filter-group">
+            <span className="filter-label">Khối lượng</span>
+            <div className="filters">
+              {VOLUME_FILTERS.map(([v, l]) => (
+                <button key={v} className={"filter-btn" + (minShares === v ? " active" : "")} onClick={() => setMinShares(v)}>
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -161,7 +180,7 @@ export default function FeedPage() {
       {!isLoading && !isError && items.length === 0 && (
         <div className="empty-card">
           <div>Không có giao dịch nào khớp với bộ lọc hiện tại.</div>
-          <button className="btn" onClick={() => { setType("all"); setRole("all"); }}>
+          <button className="btn" onClick={() => { setType("all"); setRole("all"); setMinShares(0); }}>
             Xóa bộ lọc
           </button>
         </div>

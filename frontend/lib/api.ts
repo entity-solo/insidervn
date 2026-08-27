@@ -31,6 +31,7 @@ export interface TxParams {
   ticker?: string;
   sort?: string;
   dir?: string;
+  min_shares?: number;
 }
 
 export const api = {
