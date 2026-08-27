@@ -9,7 +9,8 @@ from starlette.responses import JSONResponse
 
 from .config import CORS_ORIGINS, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW
 from .database import init_db
-from .routers import meta, prices, search, signals, transactions, winrate
+from . import metrics
+from .routers import admin, meta, prices, search, signals, transactions, winrate
 
 
 @asynccontextmanager
@@ -61,9 +62,24 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
+class ApiMetricsMiddleware(BaseHTTPMiddleware):
+    """Record latency and status for every /api/ request (skip health/root)."""
+
+    async def dispatch(self, request: Request, call_next):
+        path = request.url.path
+        if not path.startswith("/api/") or path.startswith("/api/admin"):
+            return await call_next(request)
+        t0 = time.time()
+        response = await call_next(request)
+        elapsed = (time.time() - t0) * 1000
+        metrics.record(path, response.status_code, elapsed)
+        return response
+
+
 app = FastAPI(title="InsiderVN API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(RateLimitMiddleware)
+app.add_middleware(ApiMetricsMiddleware)
 app.add_middleware(ApiCacheHeaderMiddleware)
 app.add_middleware(
     CORSMiddleware,
@@ -78,6 +94,7 @@ app.include_router(winrate.router)
 app.include_router(prices.router)
 app.include_router(search.router)
 app.include_router(meta.router)
+app.include_router(admin.router)
 
 
 @app.get("/")

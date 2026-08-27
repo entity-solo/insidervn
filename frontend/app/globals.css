@@ -362,3 +362,17 @@ select.filter-select { background: var(--surface-2); border: 1px solid var(--bor
   .container { padding-bottom: 84px; }
   .cmd-trigger { display: none; }
 }
+
+/* Admin dashboard */
+.dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.dash-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.dash-stat-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.dash-stat-value { font-size: 22px; font-weight: 800; color: var(--text); line-height: 1.2; }
+.dash-stat-value.pos { color: var(--buy); }
+.dash-stat-value.neg { color: var(--sell); }
+.dash-stat-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
